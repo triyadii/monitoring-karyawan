@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainStats.style.display = 'flex';
         }
 
-        fetch('/api/clients/stats/status', {
+        fetch('{{ url('/api/clients/stats/status') }}', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

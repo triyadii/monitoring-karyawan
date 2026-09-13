@@ -3,9 +3,9 @@
 						<!--begin::Logo-->
 						<div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
 							<!--begin::Logo image-->
-							<a href="/dashboard">
-								<img alt="Logo" src="/logo.png" class="h-45px app-sidebar-logo-default" />
-								<img alt="Logo" src="/logo.png" class="h-20px app-sidebar-logo-minimize" />
+							<a href="{{ route('dashboard') }}">
+								<img alt="Logo" src="{{ asset('logo.png') }}" class="h-45px app-sidebar-logo-default" />
+								<img alt="Logo" src="{{ asset('logo.png') }}" class="h-20px app-sidebar-logo-minimize" />
 							</a>
 							<!--end::Logo image-->
 							<!--begin::Sidebar toggle-->
@@ -46,7 +46,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item" id="menu_dashboard">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
+											<a class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-element-11 fs-2">
 														<span class="path1"></span>
@@ -63,7 +63,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_users">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('users') ? 'active' : '' }}" href="/users">
+											<a class="menu-link {{ request()->is('users') ? 'active' : '' }}" href="{{ route('users') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-profile-user fs-2">
 														<span class="path1"></span>
@@ -80,7 +80,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_roles">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('roles') ? 'active' : '' }}" href="/roles">
+											<a class="menu-link {{ request()->is('roles') ? 'active' : '' }}" href="{{ route('roles') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-shield-tick fs-2">
 														<span class="path1"></span>
@@ -95,7 +95,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_jenis_kegiatan">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('jenis-kegiatan') ? 'active' : '' }}" href="/jenis-kegiatan">
+											<a class="menu-link {{ request()->is('jenis-kegiatan') ? 'active' : '' }}" href="{{ route('jenis-kegiatan') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-category fs-2">
 														<span class="path1"></span>
@@ -111,7 +111,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_master_status">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('master-status-client') ? 'active' : '' }}" href="/master-status-client">
+											<a class="menu-link {{ request()->is('master-status-client') ? 'active' : '' }}" href="{{ route('master-status-client') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-category fs-2">
 														<span class="path1"></span>
@@ -128,7 +128,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('clients') ? 'active' : '' }}" href="/clients">
+											<a class="menu-link {{ request()->is('clients') ? 'active' : '' }}" href="{{ route('clients') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-briefcase fs-2">
 														<span class="path1"></span>
@@ -143,7 +143,7 @@
 										<!--begin:Menu item-->
 										<div class="menu-item">
 											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('kegiatan-anggota') ? 'active' : '' }}" href="/kegiatan-anggota">
+											<a class="menu-link {{ request()->is('kegiatan-anggota') ? 'active' : '' }}" href="{{ route('kegiatan-anggota') }}">
 												<span class="menu-icon">
 													<i class="ki-duotone ki-calendar-8 fs-2">
 														<span class="path1"></span>

@@ -86,14 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const userDataStr = localStorage.getItem('user_data');
     
     if (!token || !userDataStr) {
-        window.location.href = '/login';
+        window.location.href = '{{ route('login') }}';
         return;
     }
 
     const userData = JSON.parse(userDataStr);
     const roleName = userData.role_name ? userData.role_name.toLowerCase() : '';
     if (roleName !== 'superadmin' && roleName !== 'leader') {
-        window.location.href = '/dashboard';
+        window.location.href = '{{ route('dashboard') }}';
         return;
     }
 

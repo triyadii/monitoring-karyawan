@@ -12,6 +12,9 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
+        $status = \App\Models\MasterStatusClient::first();
+        $statusId = $status ? $status->id : null;
+
         Client::create([
             'nama' => 'Client Satu (HO)',
             'alamat' => 'Jl. Kebon Kacang No 1',
@@ -19,7 +22,7 @@ class ClientSeeder extends Seeder
             'kecamatan' => 'Tanah Abang',
             'kabupaten' => 'Jakarta Pusat',
             'nomor_telepon' => '081234567890',
-            'status_client' => 1,
+            'status_client' => $statusId,
             'sumber_data' => 1, // HO
         ]);
 
@@ -30,7 +33,7 @@ class ClientSeeder extends Seeder
             'kecamatan' => 'Gambir',
             'kabupaten' => 'Jakarta Pusat',
             'nomor_telepon' => '081987654321',
-            'status_client' => 1,
+            'status_client' => $statusId,
             'sumber_data' => 2, // Anggota
         ]);
     }

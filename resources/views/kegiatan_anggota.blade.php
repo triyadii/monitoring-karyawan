@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('jwt_token');
     const userDataStr = localStorage.getItem('user_data');
     if (!token || !userDataStr) {
-        window.location.href = '/login';
+        window.location.href = '{{ route('login') }}';
         return;
     }
     
@@ -422,7 +422,7 @@ window.deleteKegiatan = function(id) {
     }).then(function (result) {
         if (result.value) {
             const token = localStorage.getItem('jwt_token');
-            fetch(`{{ env("APP_URL") }}/api/kegiatan-anggota/${id}`, {
+            fetch(`{{ url('/api/kegiatan-anggota') }}/${id}`, {
                 method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
             }).then(response => {
                 if (response.ok) {

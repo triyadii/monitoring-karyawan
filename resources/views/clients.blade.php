@@ -1015,7 +1015,7 @@ window.detailClient = function(client) {
 }
 
 // API Wilayah Indonesia (Lokal)
-const wilayahApiBase = '/api/wilayah';
+const wilayahApiBase = '{{ url('/api/wilayah') }}';
 
 function resetDropdown($el, placeholderText) {
     $el.empty().append('<option></option>').val(null);

@@ -13,7 +13,7 @@ License: For each use you must have a valid license purchased only from above li
 <html lang="en">
 	<!--begin::Head-->
 	<head>
-<base href="../" />
+<base href="{{ url('/') }}/" />
 		<title>Metronic - The World's #1 Selling Tailwind CSS & Bootstrap Admin Template by KeenThemes</title>
 		<meta charset="utf-8" />
 		<meta name="description" content="The most advanced Tailwind CSS & Bootstrap 5 Admin Theme with 40 unique prebuilt layouts on Themeforest trusted by 100,000 beginners and professionals. Multi-demo, Dark Mode, RTL support and complete React, Angular, Vue, Asp.Net Core, Rails, Spring, Blazor, Django, Express.js, Node.js, Flask, Symfony & Laravel versions. Grab your copy now and get life-time updates for free." />
@@ -25,7 +25,7 @@ License: For each use you must have a valid license purchased only from above li
 		<meta property="og:url" content="https://keenthemes.com/metronic" />
 		<meta property="og:site_name" content="Metronic by Keenthemes" />
 		<link rel="canonical" href="http://preview.keenthemes.comdashboards/marketing.html" />
-		<link rel="shortcut icon" href="/logo.png" />
+		<link rel="shortcut icon" href="{{ asset('logo.png') }}" />
 		<!--begin::Fonts(mandatory for all pages)-->
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
 		<!--end::Fonts-->
@@ -4205,7 +4205,7 @@ License: For each use you must have a valid license purchased only from above li
 				if (response.status === 401) {
 					localStorage.removeItem('jwt_token');
 					localStorage.removeItem('user_data');
-					window.location.href = '/login';
+					window.location.href = '{{ route('login') }}';
 				}
 				return response;
 			};
@@ -4217,7 +4217,7 @@ License: For each use you must have a valid license purchased only from above li
 						401: function() {
 							localStorage.removeItem('jwt_token');
 							localStorage.removeItem('user_data');
-							window.location.href = '/login';
+							window.location.href = '{{ route('login') }}';
 						}
 					}
 				});
@@ -4229,7 +4229,7 @@ License: For each use you must have a valid license purchased only from above li
 				
 				if (!token || !userDataStr) {
 					// Redirect to login if not authenticated
-					window.location.href = '/login';
+					window.location.href = '{{ route('login') }}';
 					return;
 				}
 
@@ -4258,7 +4258,7 @@ License: For each use you must have a valid license purchased only from above li
 					e.preventDefault();
 					localStorage.removeItem('jwt_token');
 					localStorage.removeItem('user_data');
-					window.location.href = '/login';
+					window.location.href = '{{ route('login') }}';
 				});
 
 				// Change Password handler
@@ -4274,7 +4274,7 @@ License: For each use you must have a valid license purchased only from above li
 						submitBtn.setAttribute('data-kt-indicator', 'on');
 						submitBtn.disabled = true;
 
-						fetch(`/api/users/${userId}/password`, {
+						fetch(`{{ url('/api/users') }}/${userId}/password`, {
 							method: 'PATCH',
 							headers: {
 								'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),

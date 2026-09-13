@@ -13,7 +13,7 @@ License: For each use you must have a valid license purchased only from above li
 <html lang="en">
 	<!--begin::Head-->
 	<head>
-<base href="../../../" />
+<base href="{{ url('/') }}/" />
 		<title>Metronic - The World's #1 Selling Tailwind CSS & Bootstrap Admin Template by KeenThemes</title>
 		<meta charset="utf-8" />
 		<meta name="description" content="The most advanced Tailwind CSS & Bootstrap 5 Admin Theme with 40 unique prebuilt layouts on Themeforest trusted by 100,000 beginners and professionals. Multi-demo, Dark Mode, RTL support and complete React, Angular, Vue, Asp.Net Core, Rails, Spring, Blazor, Django, Express.js, Node.js, Flask, Symfony & Laravel versions. Grab your copy now and get life-time updates for free." />
@@ -25,7 +25,7 @@ License: For each use you must have a valid license purchased only from above li
 		<meta property="og:url" content="https://keenthemes.com/metronic" />
 		<meta property="og:site_name" content="Metronic by Keenthemes" />
 		<link rel="canonical" href="http://preview.keenthemes.comauthentication/layouts/fancy/sign-in.html" />
-		<link rel="shortcut icon" href="/logo.png" />
+		<link rel="shortcut icon" href="{{ asset('logo.png') }}" />
 		<!--begin::Fonts(mandatory for all pages)-->
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
 		<!--end::Fonts-->
@@ -47,7 +47,7 @@ License: For each use you must have a valid license purchased only from above li
 			<div class="d-flex flex-column flex-lg-row flex-column-fluid">
 				<!--begin::Logo-->
 				<a href="#" class="d-block d-lg-none mx-auto py-20">
-					<img alt="Logo" src="/logo.png" class="h-45px" />
+					<img alt="Logo" src="{{ asset('logo.png') }}" class="h-45px" />
 				</a>
 				<!--end::Logo-->
 				<!--begin::Aside-->
@@ -64,7 +64,7 @@ License: For each use you must have a valid license purchased only from above li
 						<!--begin::Body-->
 						<div class="py-20">
 							<!--begin::Form-->
-							<form class="form w-100" novalidate="novalidate" id="loginForm" action="{{ rtrim(env('APP_URL', 'http://monitoringkaryawan.local'), '/') }}/api/login">
+							<form class="form w-100" novalidate="novalidate" id="loginForm" action="{{ url('/api/login') }}">
 								<div class="card shadow-sm p-10 p-lg-15 rounded-4">
 								<!--begin::Body-->
 								<div class="card-body p-0">
@@ -144,7 +144,7 @@ License: For each use you must have a valid license purchased only from above li
 					
 					<div class="d-flex flex-column align-items-center text-center p-10" style="z-index: 1;">
 						<div class="bg-white p-8 rounded-4 shadow-sm mb-10 d-flex flex-center" style="width: 180px; height: 180px;">
-							<img alt="Logo" src="/logo.png" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+							<img alt="Logo" src="{{ asset('logo.png') }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
 						</div>
 						<h2 class="text-white fw-bold mb-3 fs-2hx">Sistem Monitoring Terpadu</h2>
 						<p class="text-white opacity-75 fw-semibold fs-5 max-w-400px">
@@ -207,7 +207,7 @@ License: For each use you must have a valid license purchased only from above li
 							}
 						}).then(() => {
 							// Redirect to dashboard
-							window.location.href = '/dashboard';
+							window.location.href = '{{ route('dashboard') }}';
 						});
 					} else {
 						Swal.fire({

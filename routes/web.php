@@ -16,7 +16,7 @@ Route::get('/login', function () {
 
 Route::get('/master-status-client', function () {
     return view('master_status_client');
-});
+})->name('master-status-client');
 
 Route::get('/dashboard', function () {
     $jumlahAnggota = User::count();
