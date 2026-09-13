@@ -25,7 +25,7 @@ License: For each use you must have a valid license purchased only from above li
 		<meta property="og:url" content="https://keenthemes.com/metronic" />
 		<meta property="og:site_name" content="Metronic by Keenthemes" />
 		<link rel="canonical" href="http://preview.keenthemes.comdashboards/marketing.html" />
-		<link rel="shortcut icon" href="assets/media/logos/favicon.ico" />
+		<link rel="shortcut icon" href="/logo.png" />
 		<!--begin::Fonts(mandatory for all pages)-->
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
 		<!--end::Fonts-->
@@ -4150,6 +4150,53 @@ License: For each use you must have a valid license purchased only from above li
 		<script src="assets/js/custom/utilities/modals/users-search.js"></script>
 		<!--end::Custom Javascript-->
 		<!--end::Javascript-->
+
+		<!--begin::Change Password Modal-->
+		<div class="modal fade" id="kt_modal_change_password" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered mw-650px">
+				<div class="modal-content">
+					<form class="form" action="#" id="kt_modal_change_password_form">
+						<div class="modal-header" id="kt_modal_change_password_header">
+							<h2 class="fw-bold">Ganti Password</h2>
+							<div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+								<i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+							</div>
+						</div>
+						<div class="modal-body py-10 px-lg-17">
+							<input type="hidden" id="change_password_user_id" />
+							<div class="fv-row mb-7" data-kt-password-meter="true">
+								<label class="required fs-6 fw-semibold mb-2">Password Baru</label>
+								<div class="position-relative mb-3">
+									<input class="form-control form-control-solid" type="password" placeholder="" name="password" autocomplete="off" />
+									<span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
+										<i class="ki-duotone ki-eye-slash fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
+										<i class="ki-duotone ki-eye fs-2 d-none"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+									</span>
+								</div>
+							</div>
+							<div class="fv-row mb-7" data-kt-password-meter="true">
+								<label class="required fs-6 fw-semibold mb-2">Konfirmasi Password Baru</label>
+								<div class="position-relative mb-3">
+									<input class="form-control form-control-solid" type="password" placeholder="" name="password_confirmation" autocomplete="off" />
+									<span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
+										<i class="ki-duotone ki-eye-slash fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
+										<i class="ki-duotone ki-eye fs-2 d-none"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer flex-center">
+							<button type="reset" id="kt_modal_change_password_cancel" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
+							<button type="submit" id="kt_modal_change_password_submit" class="btn btn-primary">
+								<span class="indicator-label">Simpan</span>
+								<span class="indicator-progress">Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!--end::Change Password Modal-->
 		<script>
 			// Global interceptor for native fetch
 			const originalFetch = window.fetch;
@@ -4213,6 +4260,74 @@ License: For each use you must have a valid license purchased only from above li
 					localStorage.removeItem('user_data');
 					window.location.href = '/login';
 				});
+
+				// Change Password handler
+				const changePasswordForm = document.getElementById('kt_modal_change_password_form');
+				if (changePasswordForm) {
+					changePasswordForm.addEventListener('submit', function (e) {
+						e.preventDefault();
+						const userId = document.getElementById('change_password_user_id').value;
+						const formData = new FormData(changePasswordForm);
+						const data = Object.fromEntries(formData.entries());
+
+						const submitBtn = document.getElementById('kt_modal_change_password_submit');
+						submitBtn.setAttribute('data-kt-indicator', 'on');
+						submitBtn.disabled = true;
+
+						fetch(`/api/users/${userId}/password`, {
+							method: 'PATCH',
+							headers: {
+								'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
+								'Content-Type': 'application/json',
+								'Accept': 'application/json'
+							},
+							body: JSON.stringify(data)
+						})
+						.then(response => response.json().then(data => ({status: response.status, body: data})))
+						.then(result => {
+							submitBtn.removeAttribute('data-kt-indicator');
+							submitBtn.disabled = false;
+
+							if (result.status === 200) {
+								Swal.fire({
+									text: "Password berhasil diubah!",
+									icon: "success",
+									buttonsStyling: false,
+									confirmButtonText: "Ok, mengerti!",
+									customClass: { confirmButton: "btn btn-primary" }
+								}).then(function () {
+									changePasswordForm.reset();
+									const modalEl = document.getElementById('kt_modal_change_password');
+									const modal = bootstrap.Modal.getInstance(modalEl);
+									if(modal) { modal.hide(); }
+								});
+							} else {
+								let errMsg = result.body.message || "Gagal mengubah password";
+								if (result.body.errors) {
+									errMsg = Object.values(result.body.errors).flat().join('<br>');
+								}
+								Swal.fire({
+									html: errMsg,
+									icon: "error",
+									buttonsStyling: false,
+									confirmButtonText: "Ok, mengerti!",
+									customClass: { confirmButton: "btn btn-primary" }
+								});
+							}
+						})
+						.catch(error => {
+							submitBtn.removeAttribute('data-kt-indicator');
+							submitBtn.disabled = false;
+							Swal.fire({
+								text: "Terjadi kesalahan, silakan coba lagi.",
+								icon: "error",
+								buttonsStyling: false,
+								confirmButtonText: "Ok",
+								customClass: { confirmButton: "btn btn-primary" }
+							});
+						});
+					});
+				}
 			});
 		</script>
 		@stack('scripts')

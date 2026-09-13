@@ -131,7 +131,7 @@
 										<!--end::Menu separator-->
 										<!--begin::Menu item-->
 										<div class="menu-item px-5">
-											<a href="account/overview.html" class="menu-link px-5">My Profile</a>
+											<a href="#" class="menu-link px-5" data-bs-toggle="modal" data-bs-target="#kt_modal_change_password" onclick="document.getElementById('change_password_user_id').value = JSON.parse(localStorage.getItem('user_data')).id;">Ganti Password</a>
 										</div>
 										<!--end::Menu item-->
 										<!--begin::Menu separator-->

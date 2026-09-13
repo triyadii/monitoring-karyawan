@@ -192,8 +192,8 @@
                                         "type": "string"
                                     },
                                     "status_client": {
-                                        "type": "integer",
-                                        "default": 1
+                                        "type": "string",
+                                        "format": "uuid"
                                     },
                                     "sumber_data": {
                                         "description": "1: HO, 2: Anggota",
@@ -301,11 +301,8 @@
                                         "type": "string"
                                     },
                                     "status_client": {
-                                        "type": "integer",
-                                        "enum": [
-                                            0,
-                                            1
-                                        ]
+                                        "type": "string",
+                                        "format": "uuid"
                                     },
                                     "sumber_data": {
                                         "type": "integer",
@@ -551,6 +548,25 @@
                 ],
                 "summary": "Get count of clients by input and disposisi per user",
                 "operationId": "e08e751744b4b99ce90578c6029f021a",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/clients/stats/status": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Get count of clients by status",
+                "operationId": "116d13f11439544ddd654b08431dfdda",
                 "responses": {
                     "200": {
                         "description": "Successful operation"
@@ -1189,6 +1205,63 @@
                 "responses": {
                     "200": {
                         "description": "User deleted"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{id}/password": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user password",
+                "operationId": "1f87b6e61a2466ba7dca416e5023fce6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     },
                     "404": {
                         "description": "User not found"

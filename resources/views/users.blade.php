@@ -76,10 +76,9 @@
                         <input type="text" class="form-control form-control-solid" placeholder="Username" name="username" id="username" />
                     </div>
 
-                    <div class="d-flex flex-column mb-7 fv-row">
+                    <div class="d-flex flex-column mb-7 fv-row" id="password_container">
                         <label class="d-flex align-items-center fs-6 fw-semibold form-label mb-2">
-                            <span>Password</span>
-                            <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip" title="Kosongkan jika tidak ingin merubah password saat edit"></i>
+                            <span class="required">Password</span>
                         </label>
                         <input type="password" class="form-control form-control-solid" placeholder="Password" name="password" id="password" />
                     </div>
@@ -163,14 +162,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     : `<span class="badge badge-light-danger">Non-Aktif</span>`;
             }},
             { data: 'id', orderable: false, render: function(data, type, row) {
-                return `
+                const userDataStr = localStorage.getItem('user_data');
+                let isAdmin = false;
+                if (userDataStr) {
+                    try {
+                        const ud = JSON.parse(userDataStr);
+                        const role = ud.role_name || (ud.role && ud.role.nama_role) || '';
+                        if (role.toLowerCase() === 'superadmin' || role.toLowerCase() === 'leader') {
+                            isAdmin = true;
+                        }
+                    } catch(e) {}
+                }
+
+                let html = '';
+                if (isAdmin) {
+                    html += `
+                    <button class="btn btn-icon btn-sm btn-light-info me-2" onclick="resetUserPassword('${data}')" title="Reset Password">
+                        <i class="ki-duotone ki-key fs-3"><span class="path1"></span><span class="path2"></span></i>
+                    </button>`;
+                }
+                
+                html += `
                     <button class="btn btn-icon btn-sm btn-light-primary me-2" onclick='editUser(${JSON.stringify(row).replace(/'/g, "&apos;")})' title="Edit">
                         <i class="ki-duotone ki-pencil fs-3"><span class="path1"></span><span class="path2"></span></i>
-                    </button>
+                    </button>`;
+
+                if (isAdmin) {
+                    html += `
                     <button class="btn btn-icon btn-sm btn-light-danger" onclick="deleteUser('${data}')" title="Delete">
                         <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
-                    </button>
-                `;
+                    </button>`;
+                }
+                return html;
             }}
         ]
     });
@@ -262,6 +285,8 @@ window.resetForm = function() {
     document.getElementById('user_id').value = "";
     document.getElementById('modal_title').innerText = "Tambah User";
     $('#role_id').val("").trigger('change');
+    document.getElementById('password_container').classList.remove('d-none');
+    document.getElementById('password_container').classList.add('d-flex');
 }
 
 window.editUser = function(user) {
@@ -277,7 +302,59 @@ window.editUser = function(user) {
         $('#role_id').val(user.role_id).trigger('change');
     }
     
+    document.getElementById('password_container').classList.remove('d-flex');
+    document.getElementById('password_container').classList.add('d-none');
+    
     $('#kt_modal_add_user').modal('show');
+}
+
+window.resetUserPassword = function(id) {
+    Swal.fire({
+        text: "Apakah Anda yakin ingin mereset password user ini?",
+        icon: "warning",
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonText: "Ya, Reset!",
+        cancelButtonText: "Batal",
+        customClass: {
+            confirmButton: "btn btn-info",
+            cancelButton: "btn btn-active-light"
+        }
+    }).then(function (result) {
+        if (result.value) {
+            const token = localStorage.getItem('jwt_token');
+            const apiUrl = '{{ env("APP_URL") }}' + '/api';
+            
+            fetch(`${apiUrl}/users/${id}/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json().then(data => ({status: response.status, body: data})))
+            .then(result => {
+                if (result.status === 200) {
+                    Swal.fire({
+                        title: "Reset Berhasil!",
+                        html: `Password baru untuk user ini adalah:<br><br><strong class="fs-2x text-primary">${result.body.new_password}</strong><br><br>Harap copy dan berikan kepada user yang bersangkutan.`,
+                        icon: "success",
+                        buttonsStyling: false,
+                        confirmButtonText: "Ok, tutup",
+                        customClass: { confirmButton: "btn btn-primary" }
+                    });
+                } else {
+                    Swal.fire({
+                        text: result.body.message || "Gagal mereset password.",
+                        icon: "error",
+                        buttonsStyling: false,
+                        confirmButtonText: "Ok",
+                        customClass: { confirmButton: "btn btn-danger" }
+                    });
+                }
+            });
+        }
+    });
 }
 
 window.deleteUser = function(id) {

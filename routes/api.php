@@ -21,6 +21,8 @@ Route::get('/wilayah/villages/{district_code}', [WilayahController::class, 'vill
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/roles', RoleController::class);
+    Route::patch('/users/{id}/password', [UserController::class, 'updatePassword']);
+    Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/jenis-kegiatan', JenisKegiatanController::class);
     Route::apiResource('/master-status-clients', MasterStatusClientController::class);

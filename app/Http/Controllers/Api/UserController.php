@@ -157,4 +157,72 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User deleted successfully']);
     }
+
+    #[OA\Patch(
+        path: '/api/users/{id}/password',
+        summary: 'Update user password',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['password', 'password_confirmation'],
+                properties: [
+                    new OA\Property(property: 'password', type: 'string'),
+                    new OA\Property(property: 'password_confirmation', type: 'string'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Password updated'),
+            new OA\Response(response: 422, description: 'Validation error'),
+            new OA\Response(response: 404, description: 'User not found'),
+        ]
+    )]
+    public function updatePassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return response()->json(['message' => 'Password updated successfully']);
+    }
+
+    #[OA\Post(
+        path: '/api/users/{id}/reset-password',
+        summary: 'Reset user password to a random string',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Password reset successful'),
+            new OA\Response(response: 404, description: 'User not found'),
+        ]
+    )]
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        
+        $newPassword = \Illuminate\Support\Str::random(8);
+
+        $user->update([
+            'password' => Hash::make($newPassword),
+        ]);
+
+        return response()->json([
+            'message' => 'Password reset successfully',
+            'new_password' => $newPassword
+        ]);
+    }
 }
