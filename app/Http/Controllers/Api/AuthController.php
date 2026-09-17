@@ -83,7 +83,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'role_id' => $user->role_id,
                 'role_name' => $user->role ? $user->role->nama_role : '',
-                'jenis_pegawai_name' => $user->jenisPegawai ? $user->jenisPegawai->nama_jenis_pegawai : '',
+                'jenis_pegawai_name' => $user->jenisPegawai ? $user->jenisPegawai->jenisPegawai : '',
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'status' => $user->status,

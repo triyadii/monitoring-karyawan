@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const ud = JSON.parse(userDataStr);
             const role = ud.role_name || (ud.role && ud.role.nama_role) || '';
-            const jp = ud.jenis_pegawai_name || (ud.jenisPegawai && ud.jenisPegawai.nama_jenis_pegawai) || '';
+            const jp = ud.jenis_pegawai_name || (ud.jenisPegawai && ud.jenisPegawai.jenisPegawai) || '';
             const roleLower = String(role).toLowerCase().trim();
             const jpLower = String(jp).toLowerCase().trim();
             
