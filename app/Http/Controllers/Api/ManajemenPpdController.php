@@ -6,23 +6,44 @@ use App\Http\Controllers\Controller;
 use App\Models\ManajemenPpd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ManajemenPpdExport;
 use OpenApi\Attributes as OA;
 
 class ManajemenPpdController extends Controller
 {
     #[OA\Get(
         path: '/api/manajemen-ppd',
-        summary: 'Get list of manajemen ppd',
+        summary: 'Get list of manajemen PPD',
         security: [['bearerAuth' => []]],
         tags: ['Manajemen PPD'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
             new OA\Response(response: 401, description: 'Unauthorized'),
         ]
     )]
-    public function index()
+    public function index(Request $request)
     {
-        $ppds = ManajemenPpd::with(['user'])->get();
+        $query = ManajemenPpd::with('user');
+        
+        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+            $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%' . $request->query('filter_nama') . '%');
+        }
+
+        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        }
+
+        $ppds = $query->get();
         return response()->json($ppds);
     }
 
@@ -221,5 +242,24 @@ class ManajemenPpdController extends Controller
         $ppd->delete();
 
         return response()->json(null, 204);
+    }
+
+    #[OA\Get(
+        path: '/api/export/manajemen-ppd',
+        summary: 'Export Manajemen PPD to Excel',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen PPD'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'File downloaded successfully')
+        ]
+    )]
+    public function export(Request $request)
+    {
+        return Excel::download(new ManajemenPpdExport($request->all()), 'manajemen_ppd.xlsx');
     }
 }

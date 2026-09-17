@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ManajemenVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ManajemenVisitExport;
 use OpenApi\Attributes as OA;
 
 class ManajemenVisitController extends Controller
@@ -15,14 +17,33 @@ class ManajemenVisitController extends Controller
         summary: 'Get list of manajemen visit',
         security: [['bearerAuth' => []]],
         tags: ['Manajemen Visit'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
             new OA\Response(response: 401, description: 'Unauthorized'),
         ]
     )]
-    public function index()
+    public function index(Request $request)
     {
-        $visits = ManajemenVisit::with(['user', 'status'])->get();
+        $query = ManajemenVisit::with(['user', 'status']);
+        
+        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+            $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%' . $request->query('filter_nama') . '%');
+        }
+
+        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        }
+
+        $visits = $query->get();
         return response()->json($visits);
     }
 
@@ -217,5 +238,24 @@ class ManajemenVisitController extends Controller
         $visit->delete();
 
         return response()->json(null, 204);
+    }
+
+    #[OA\Get(
+        path: '/api/export/manajemen-visit',
+        summary: 'Export Manajemen Visit to Excel',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen Visit'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'File downloaded successfully')
+        ]
+    )]
+    public function export(Request $request)
+    {
+        return Excel::download(new ManajemenVisitExport($request->all()), 'manajemen_visit.xlsx');
     }
 }

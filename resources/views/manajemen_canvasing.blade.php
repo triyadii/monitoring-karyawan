@@ -6,40 +6,79 @@
 <div id="kt_app_content" class="app-content flex-column-fluid">
     <div id="kt_app_content_container" class="app-container container-xxl">
         
-        <div class="card card-flush">
-            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                <div class="card-title">
-                    <div class="d-flex align-items-center position-relative my-1">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
-                        <input type="text" data-kt-canvasing-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari Canvasing..." />
+        <div id="anggota_list_container" style="display: none;">
+            <div class="card card-flush">
+                <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                    <div class="card-title">
+                        <h3 class="fw-bold">Daftar Anggota Channeling</h3>
                     </div>
                 </div>
-                <div class="card-toolbar" id="btn_add_container" style="display: none;">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_canvasing" onclick="resetForm()">
-                        <i class="ki-duotone ki-plus fs-2"></i> Tambah Canvasing
-                    </button>
+                <div class="card-body pt-0">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_anggota">
+                        <thead>
+                            <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                <th class="min-w-150px">Nama Anggota</th>
+                                <th class="min-w-150px">Username</th>
+                                <th class="min-w-125px">Role / Jabatan</th>
+                                <th class="min-w-125px">Total Data Input</th>
+                                <th class="text-end min-w-100px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
-            <div class="card-body pt-0">
-                <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_canvasings">
-                    <thead>
-                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-125px">Nama Client</th>
-                            <th class="min-w-125px">Nomor Telepon</th>
-                            <th class="min-w-200px">Alamat</th>
-                            <th class="min-w-125px">Dibuat Oleh</th>
-                            <th class="min-w-100px">Status</th>
-                            <th class="text-end min-w-100px">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="fw-semibold text-gray-600">
-                        <!-- Data loaded via AJAX -->
-                    </tbody>
-                </table>
+        </div>
+
+        <div id="main_table_container">
+            <div class="card card-flush">
+                <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                    <div class="card-title d-flex align-items-center gap-3">
+                        <button type="button" class="btn btn-sm btn-light" id="btn_back_to_members" style="display: none;" onclick="showMembersList()">
+                            <i class="ki-duotone ki-arrow-left fs-2"></i> Kembali
+                        </button>
+                        <div class="d-flex align-items-center position-relative my-1">
+                            <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                            <input type="text" data-kt-canvasing-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari Canvasing..." />
+                        </div>
+                        <div class="d-flex align-items-center gap-2 my-1 ms-3">
+                            <input type="date" id="filter_tanggal" class="form-control form-control-solid w-150px" title="Filter Tanggal" />
+                            <input type="text" id="filter_nama" class="form-control form-control-solid w-200px" placeholder="Filter Nama..." />
+                            <button type="button" class="btn btn-primary btn-sm" onclick="applyFilters()">Filter</button>
+                            <button type="button" class="btn btn-light btn-sm" onclick="resetFilters()">Reset</button>
+                        </div>
+                    </div>
+                    <div class="card-toolbar" id="btn_add_container" style="display: none;">
+                        <button type="button" class="btn btn-success me-3" onclick="exportData('canvasing')">
+                            <i class="ki-duotone ki-file-down fs-2"></i> Export Data
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_canvasing" onclick="resetForm()">
+                            <i class="ki-duotone ki-plus fs-2"></i> Tambah Canvasing
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body pt-0">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_canvasings" style="width: 100%">
+                        <thead>
+                            <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                <th class="min-w-125px">Nama Client</th>
+                                <th class="min-w-125px">Nomor Telepon</th>
+                                <th class="min-w-200px">Alamat</th>
+                                <th class="min-w-125px">Dibuat Oleh</th>
+                                <th class="min-w-100px">Status</th>
+                                <th class="text-end min-w-100px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600">
+                            <!-- Data loaded via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -168,6 +207,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Role-based logic
     let hasCrudAccess = false;
+    let isSuperAdminOrLeader = false;
+    let selectedUserId = null;
+    let anggotaDatatable = null;
+
     const userDataStr = localStorage.getItem('user_data');
     if (userDataStr) {
         try {
@@ -177,9 +220,44 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (roleLower === 'channeling' || roleLower === 'superadmin' || roleLower === 'leader') {
                 hasCrudAccess = true;
-                document.getElementById('btn_add_container').style.display = 'block';
+            }
+            if (roleLower === 'superadmin' || roleLower === 'leader') {
+                isSuperAdminOrLeader = true;
             }
         } catch(e) {}
+    }
+
+    if (isSuperAdminOrLeader) {
+        document.getElementById('main_table_container').style.display = 'none';
+        document.getElementById('anggota_list_container').style.display = 'block';
+
+        anggotaDatatable = $('#kt_table_anggota').DataTable({
+            ajax: {
+                url: `${apiUrl}/member-stats/canvasing`,
+                type: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                dataSrc: ''
+            },
+            columns: [
+                { data: 'nama', defaultContent: '-' },
+                { data: 'username', defaultContent: '-' },
+                { data: 'role', defaultContent: '-', render: function(data, type, row) {
+                    return data !== '-' ? data : row.jenis_pegawai;
+                }},
+                { data: 'total_input', defaultContent: '0' },
+                { data: 'id', orderable: false, render: function(data, type, row) {
+                    return `
+                        <button class="btn btn-sm btn-light-primary" onclick="viewMemberData('${data}')">
+                            <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i> Lihat Data
+                        </button>
+                    `;
+                }}
+            ]
+        });
+    } else {
+        if (hasCrudAccess) {
+            document.getElementById('btn_add_container').style.display = 'block';
+        }
     }
 
     // Load Master Status Client for dropdown
@@ -203,6 +281,15 @@ document.addEventListener('DOMContentLoaded', function() {
             url: `${apiUrl}/manajemen-canvasing`,
             type: 'GET',
             headers: { 'Authorization': `Bearer ${token}` },
+            data: function(d) {
+                if (selectedUserId) {
+                    d.user_id = selectedUserId;
+                }
+                const filterTanggal = document.getElementById('filter_tanggal');
+                const filterNama = document.getElementById('filter_nama');
+                if (filterTanggal) d.filter_tanggal = filterTanggal.value;
+                if (filterNama) d.filter_nama = filterNama.value;
+            },
             dataSrc: ''
         },
         columns: [
@@ -388,6 +475,75 @@ window.showDetailCanvasing = function(canvasing) {
         : `-`;
 
     $('#kt_modal_detail_canvasing').modal('show');
+}
+
+window.applyFilters = function() {
+    $('#kt_table_canvasings').DataTable().ajax.reload();
+}
+
+window.resetFilters = function() {
+    document.getElementById('filter_tanggal').value = '';
+    document.getElementById('filter_nama').value = '';
+    $('#kt_table_canvasings').DataTable().ajax.reload();
+}
+
+window.exportData = function(module) {
+    const token = localStorage.getItem('jwt_token');
+    const filterTanggal = document.getElementById('filter_tanggal')?.value || '';
+    const filterNama = document.getElementById('filter_nama')?.value || '';
+    
+    let url = `{{ url('/api/export/manajemen-canvasing') }}?`;
+    if (selectedUserId) url += `user_id=${selectedUserId}&`;
+    if (filterTanggal) url += `filter_tanggal=${filterTanggal}&`;
+    if (filterNama) url += `filter_nama=${filterNama}&`;
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.blob();
+    })
+    .then(blob => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadUrl;
+        a.download = 'manajemen_canvasing.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
+    })
+    .catch(error => {
+        console.error('Error exporting data:', error);
+        Swal.fire('Error', 'Gagal mengekspor data.', 'error');
+    });
+}
+
+window.viewMemberData = function(userId) {
+    selectedUserId = userId;
+    document.getElementById('anggota_list_container').style.display = 'none';
+    document.getElementById('main_table_container').style.display = 'block';
+    document.getElementById('btn_back_to_members').style.display = 'block';
+    if (hasCrudAccess) {
+        document.getElementById('btn_add_container').style.display = 'block';
+    }
+    $('#kt_table_canvasings').DataTable().ajax.reload();
+}
+
+window.showMembersList = function() {
+    selectedUserId = null;
+    document.getElementById('main_table_container').style.display = 'none';
+    document.getElementById('btn_back_to_members').style.display = 'none';
+    document.getElementById('btn_add_container').style.display = 'none';
+    document.getElementById('anggota_list_container').style.display = 'block';
+    if (anggotaDatatable) {
+        anggotaDatatable.ajax.reload();
+    }
 }
 </script>
 @endsection

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ManajemenHo;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ManajemenHoExport;
 use OpenApi\Attributes as OA;
 use Carbon\Carbon;
 
@@ -12,9 +14,14 @@ class ManajemenHoController extends Controller
 {
     #[OA\Get(
         path: '/api/manajemen-ho',
-        summary: 'Get list of manajemen ho created today',
+        summary: 'Get list of manajemen HO',
         security: [['bearerAuth' => []]],
         tags: ['Manajemen HO'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
             new OA\Response(response: 401, description: 'Unauthorized'),
@@ -25,15 +32,30 @@ class ManajemenHoController extends Controller
         $query = ManajemenHo::with(['user', 'status']);
         
         $user = $request->user();
-        if ($user && $user->role) {
-            $roleName = strtolower($user->role->nama_role);
-            // Jika bukan superadmin dan bukan leader, terapkan filter tanggal
-            if (!in_array($roleName, ['superadmin', 'leader'])) {
+        
+        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+            // Jika ada filter tanggal dari client, gunakan filter tersebut
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        } else {
+            // Default behavior jika tidak ada filter tanggal
+            if ($user && $user->role) {
+                $roleName = strtolower($user->role->nama_role);
+                // Jika bukan superadmin dan bukan leader, terapkan filter hari ini
+                if (!in_array($roleName, ['superadmin', 'leader'])) {
+                    $query->whereDate('created_at', Carbon::today());
+                }
+            } else {
+                // Fallback jika tidak ada user/role terdeteksi, filter aktif
                 $query->whereDate('created_at', Carbon::today());
             }
-        } else {
-            // Fallback jika tidak ada user/role terdeteksi, filter aktif
-            $query->whereDate('created_at', Carbon::today());
+        }
+
+        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%' . $request->query('filter_nama') . '%');
+        }
+
+        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+            $query->where('user_id', $request->query('user_id'));
         }
         
         $hos = $query->get();
@@ -167,5 +189,24 @@ class ManajemenHoController extends Controller
         $ho->delete();
 
         return response()->json(null, 204);
+    }
+
+    #[OA\Get(
+        path: '/api/export/manajemen-ho',
+        summary: 'Export Manajemen HO to Excel',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen HO'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'File downloaded successfully')
+        ]
+    )]
+    public function export(Request $request)
+    {
+        return Excel::download(new ManajemenHoExport($request->all()), 'manajemen_ho.xlsx');
     }
 }

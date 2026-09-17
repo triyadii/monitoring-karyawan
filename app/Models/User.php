@@ -39,6 +39,31 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Client::class);
     }
 
+    public function manajemenAksi()
+    {
+        return $this->hasMany(ManajemenAksi::class);
+    }
+
+    public function manajemenVisit()
+    {
+        return $this->hasMany(ManajemenVisit::class);
+    }
+
+    public function manajemenCanvasing()
+    {
+        return $this->hasMany(ManajemenCanvasing::class);
+    }
+
+    public function manajemenHo()
+    {
+        return $this->hasMany(ManajemenHo::class);
+    }
+
+    public function manajemenPpd()
+    {
+        return $this->hasMany(ManajemenPpd::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

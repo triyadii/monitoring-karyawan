@@ -60,48 +60,7 @@
 											<!--end:Menu link-->
 										</div>
 										<!--end:Menu item-->
-										<!--begin:Menu item-->
-										<div class="menu-item pt-5">
-											<!--begin:Menu content-->
-											<div class="menu-content">
-												<span class="menu-heading fw-bold text-uppercase fs-7">Penginputan Data Client</span>
-											</div>
-											<!--end:Menu content-->
-										</div>
-										<!--end:Menu item-->
-										<!--begin:Menu item-->
-										<div class="menu-item">
-											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('clients') ? 'active' : '' }}" href="{{ route('clients') }}">
-												<span class="menu-icon">
-													<i class="ki-duotone ki-briefcase fs-2">
-														<span class="path1"></span>
-														<span class="path2"></span>
-													</i>
-												</span>
-												<span class="menu-title">Manajemen Clients</span>
-											</a>
-											<!--end:Menu link-->
-										</div>
-										<!--end:Menu item-->
-										<!--begin:Menu item-->
-										<div class="menu-item">
-											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('kegiatan-anggota') ? 'active' : '' }}" href="{{ route('kegiatan-anggota') }}">
-												<span class="menu-icon">
-													<i class="ki-duotone ki-calendar-8 fs-2">
-														<span class="path1"></span>
-														<span class="path2"></span>
-														<span class="path3"></span>
-														<span class="path4"></span>
-														<span class="path5"></span>
-														<span class="path6"></span>
-													</i>
-												</span>
-												<span class="menu-title">Kegiatan Anggota</span>
-											</a>
-											<!--end:Menu link-->
-										</div>
+
 										<!--begin:Menu item-->
 										<div class="menu-item aksi-menu-item">
 											<!--begin:Menu link-->

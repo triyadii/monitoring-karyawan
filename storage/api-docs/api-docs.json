@@ -579,6 +579,52 @@
                 ]
             }
         },
+        "/api/dashboard/stats": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get dashboard statistics for Manajemen modules",
+                "operationId": "654e1617f74d2b9e0654ec77620d960b",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "aksi": {
+                                            "type": "integer"
+                                        },
+                                        "visit": {
+                                            "type": "integer"
+                                        },
+                                        "canvasing": {
+                                            "type": "integer"
+                                        },
+                                        "ho": {
+                                            "type": "integer"
+                                        },
+                                        "ppd": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/jenis-pegawai": {
             "get": {
                 "tags": [
@@ -1034,6 +1080,33 @@
                 ],
                 "summary": "Get list of manajemen aksi",
                 "operationId": "f553d3b970ecaa8979464e1d589a8ee8",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation"
@@ -1236,6 +1309,1267 @@
                     },
                     "404": {
                         "description": "Aksi not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/export/manajemen-aksi": {
+            "get": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Export Manajemen Aksi to Excel",
+                "operationId": "2db28fa476773fe0d93ac2d6d4f44cc1",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-canvasing": {
+            "get": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Get list of manajemen canvasing",
+                "operationId": "dfc24c362a2ce1cd1db2869015c24151",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Create new canvasing",
+                "operationId": "7cff82c92d62ad22bb9edd5485230423",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "description": "UUID of Master Status Client",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Canvasing created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-canvasing/{uuid}": {
+            "get": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Get canvasing details",
+                "operationId": "e8cb2501ba79522cdbf60781d92f3e97",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Canvasing not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Update canvasing",
+                "operationId": "0808bf99890e19e7224c9fed9282cbc7",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Canvasing updated"
+                    },
+                    "404": {
+                        "description": "Canvasing not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Delete canvasing",
+                "operationId": "dc1d0a08b9910508ae28c0966b0f88f6",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Canvasing not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/export/manajemen-canvasing": {
+            "get": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Export Manajemen Canvasing to Excel",
+                "operationId": "7e85eee1fc0e4445d103efb2e4c75c67",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-ho": {
+            "get": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Get list of manajemen HO",
+                "operationId": "fab1f77f975f337efb2f20356e694d21",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Create new HO",
+                "operationId": "06346935e63aeda98d19e517a478d4bb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "description": "UUID of Master Status Client",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "HO created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-ho/{uuid}": {
+            "get": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Get HO details",
+                "operationId": "1310c0b74244b782377494c6dae1711a",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "HO not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Update HO",
+                "operationId": "76020fbcea586eb7c17bb6126d6e1e0d",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "HO updated"
+                    },
+                    "404": {
+                        "description": "HO not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Delete HO",
+                "operationId": "a5731602b9e500d2c6ecef6065cdc8e6",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "HO not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/export/manajemen-ho": {
+            "get": {
+                "tags": [
+                    "Manajemen HO"
+                ],
+                "summary": "Export Manajemen HO to Excel",
+                "operationId": "0fa3f3a443d17cc16a5038892337f6e7",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-ppd": {
+            "get": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Get list of manajemen PPD",
+                "operationId": "7b07195f706d0ed8bf7795eb1a585d14",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Create new PPD",
+                "operationId": "7d49a6e60c3da9fedca0877e42de89e4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "nomorKontrak": {
+                                        "type": "string"
+                                    },
+                                    "tenor": {
+                                        "type": "string"
+                                    },
+                                    "angsuran": {
+                                        "type": "string"
+                                    },
+                                    "merk": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "jenisKendaraan": {
+                                        "type": "string"
+                                    },
+                                    "pinjaman": {
+                                        "type": "string"
+                                    },
+                                    "jatuhTempo": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "ktp": {
+                                        "description": "Image KTP (jpeg, png, jpg)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "PPD created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-ppd/{uuid}": {
+            "get": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Get PPD details",
+                "operationId": "f6363f16d02718b3a424c7f096c4411d",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "PPD not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Update PPD with file upload",
+                "operationId": "4f7dcddacc25bbe6776dc62cf38d7536",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "nomorKontrak": {
+                                        "type": "string"
+                                    },
+                                    "tenor": {
+                                        "type": "string"
+                                    },
+                                    "angsuran": {
+                                        "type": "string"
+                                    },
+                                    "merk": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "jenisKendaraan": {
+                                        "type": "string"
+                                    },
+                                    "pinjaman": {
+                                        "type": "string"
+                                    },
+                                    "jatuhTempo": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "ktp": {
+                                        "description": "Image KTP (jpeg, png, jpg)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PPD updated"
+                    },
+                    "404": {
+                        "description": "PPD not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Delete PPD",
+                "operationId": "671fd052b800c77fb6d5a170dd5dd781",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "PPD not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/export/manajemen-ppd": {
+            "get": {
+                "tags": [
+                    "Manajemen PPD"
+                ],
+                "summary": "Export Manajemen PPD to Excel",
+                "operationId": "66a5a45de3067f3015847826f48cef89",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-visit": {
+            "get": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Get list of manajemen visit",
+                "operationId": "bdca5bb7740e8482a8b6a39a9a08a3fc",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Create new visit",
+                "operationId": "84a05a3762fe9a309775383056e0eb79",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "type": "string"
+                                    },
+                                    "kegiatan": {
+                                        "type": "string"
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Visit created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-visit/{uuid}": {
+            "get": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Get visit details",
+                "operationId": "2b7a342ce4267f073d5a66eee364b3e4",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Visit not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Update visit with file upload",
+                "operationId": "906bb2c0b55fcf54b31a9ec0c5147089",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "namaClient",
+                                    "nomorTelepon",
+                                    "alamat",
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "namaClient": {
+                                        "type": "string"
+                                    },
+                                    "nomorTelepon": {
+                                        "type": "string"
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "status_id": {
+                                        "type": "string"
+                                    },
+                                    "kegiatan": {
+                                        "type": "string"
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg). Will replace old images.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "_method": {
+                                        "description": "Spoof method to PUT (optional if handled by controller explicitly)",
+                                        "type": "string",
+                                        "default": "PUT"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Visit updated"
+                    },
+                    "404": {
+                        "description": "Visit not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Delete visit",
+                "operationId": "480e848ebeeb7262197a41e01b1d3b1a",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Visit not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/export/manajemen-visit": {
+            "get": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Export Manajemen Visit to Excel",
+                "operationId": "f7e1fbbc822d22373dc34bebe1b7d437",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/member-stats/{type}": {
+            "get": {
+                "tags": [
+                    "Member Stats"
+                ],
+                "summary": "Get members and their input count based on type",
+                "operationId": "e12951a1074c2883857c86183ce883f0",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "aksi",
+                                "visit",
+                                "canvasing",
+                                "ho",
+                                "ppd"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "400": {
+                        "description": "Invalid type"
                     }
                 },
                 "security": [
@@ -1931,6 +3265,10 @@
             "description": "Clients"
         },
         {
+            "name": "Dashboard",
+            "description": "Dashboard"
+        },
+        {
             "name": "Jenis Pegawai",
             "description": "Jenis Pegawai"
         },
@@ -1941,6 +3279,26 @@
         {
             "name": "Manajemen Aksi",
             "description": "Manajemen Aksi"
+        },
+        {
+            "name": "Manajemen Canvasing",
+            "description": "Manajemen Canvasing"
+        },
+        {
+            "name": "Manajemen HO",
+            "description": "Manajemen HO"
+        },
+        {
+            "name": "Manajemen PPD",
+            "description": "Manajemen PPD"
+        },
+        {
+            "name": "Manajemen Visit",
+            "description": "Manajemen Visit"
+        },
+        {
+            "name": "Member Stats",
+            "description": "Member Stats"
         },
         {
             "name": "Roles",

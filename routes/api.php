@@ -33,16 +33,23 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/jenis-kegiatan', JenisKegiatanController::class);
     Route::apiResource('/jenis-pegawai', JenisPegawaiController::class);
     Route::post('/manajemen-aksi/{uuid}', [ManajemenAksiController::class, 'update']);
+    Route::get('/dashboard/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
+    Route::get('/member-stats/{type}', [\App\Http\Controllers\Api\MemberStatsController::class, 'getStats']);
+    Route::get('/export/manajemen-aksi', [ManajemenAksiController::class, 'export']);
     Route::apiResource('/manajemen-aksi', ManajemenAksiController::class)->except(['update']);
     
     Route::post('/manajemen-visit/{uuid}', [ManajemenVisitController::class, 'update']);
+    Route::get('/export/manajemen-visit', [ManajemenVisitController::class, 'export']);
     Route::apiResource('/manajemen-visit', ManajemenVisitController::class)->except(['update']);
     
     Route::post('/manajemen-ppd/{uuid}', [ManajemenPpdController::class, 'update']);
+    Route::get('/export/manajemen-ppd', [ManajemenPpdController::class, 'export']);
     Route::apiResource('/manajemen-ppd', ManajemenPpdController::class)->except(['update']);
     
+    Route::get('/export/manajemen-ho', [ManajemenHoController::class, 'export']);
     Route::apiResource('/manajemen-ho', ManajemenHoController::class);
     
+    Route::get('/export/manajemen-canvasing', [ManajemenCanvasingController::class, 'export']);
     Route::apiResource('/manajemen-canvasing', ManajemenCanvasingController::class);
     Route::apiResource('/master-status-clients', MasterStatusClientController::class);
     Route::post('/clients/import', [ClientController::class, 'import']);
