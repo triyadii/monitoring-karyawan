@@ -22,7 +22,7 @@ class UserController extends Controller
     )]
     public function index()
     {
-        $users = User::with('role')->get();
+        $users = User::with(['role', 'jenisPegawai'])->get();
 
         return response()->json($users);
     }
@@ -38,6 +38,7 @@ class UserController extends Controller
                 required: ['username', 'password', 'nama'],
                 properties: [
                     new OA\Property(property: 'role_id', type: 'string', format: 'uuid'),
+                    new OA\Property(property: 'jenis_pegawai_id', type: 'string', format: 'uuid'),
                     new OA\Property(property: 'username', type: 'string'),
                     new OA\Property(property: 'password', type: 'string'),
                     new OA\Property(property: 'nama', type: 'string'),
@@ -55,6 +56,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'role_id' => 'nullable|uuid|exists:roles,id',
+            'jenis_pegawai_id' => 'nullable|uuid|exists:jenis_pegawais,uuid',
             'username' => 'required|unique:users',
             'password' => 'required|min:6',
             'nama' => 'required',
@@ -102,6 +104,7 @@ class UserController extends Controller
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'role_id', type: 'string', format: 'uuid'),
+                    new OA\Property(property: 'jenis_pegawai_id', type: 'string', format: 'uuid'),
                     new OA\Property(property: 'username', type: 'string'),
                     new OA\Property(property: 'password', type: 'string'),
                     new OA\Property(property: 'nama', type: 'string'),
@@ -120,6 +123,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'role_id' => 'nullable|uuid|exists:roles,id',
+            'jenis_pegawai_id' => 'nullable|uuid|exists:jenis_pegawais,uuid',
             'username' => 'unique:users,username,'.$user->id,
             'password' => 'nullable|min:6',
             'nama' => 'string',

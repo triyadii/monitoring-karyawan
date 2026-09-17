@@ -39,6 +39,30 @@ Route::get('/jenis-kegiatan', function () {
     return view('jenis_kegiatan');
 })->name('jenis-kegiatan');
 
+Route::get('/jenis-pegawai', function () {
+    return view('jenis_pegawai');
+})->name('jenis-pegawai');
+
+Route::get('/manajemen-aksi', function () {
+    return view('manajemen_aksi');
+})->name('manajemen-aksi');
+
+Route::get('/manajemen-canvasing', function () {
+    return view('manajemen_canvasing');
+})->name('manajemen-canvasing');
+
+Route::get('/manajemen-visit', function () {
+    return view('manajemen_visit');
+})->name('manajemen-visit');
+
+Route::get('/manajemen-ho', function () {
+    return view('manajemen_ho');
+})->name('manajemen-ho');
+
+Route::get('/manajemen-ppd', function () {
+    return view('manajemen_ppd');
+})->name('manajemen-ppd');
+
 Route::get('/kegiatan-anggota', function () {
     return view('kegiatan_anggota');
 })->name('kegiatan-anggota');

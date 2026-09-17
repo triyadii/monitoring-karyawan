@@ -47,6 +47,16 @@ License: For each use you must have a valid license purchased only from above li
 						let rawRole = userData.role_name || (userData.role && userData.role.nama_role) || '';
 						if (rawRole.toLowerCase() === 'superadmin' || rawRole.toLowerCase() === 'leader') {
 							document.documentElement.classList.add('role-admin');
+							document.documentElement.classList.add('role-ppd');
+						} else if (rawRole.toLowerCase() === 'channeling') {
+							document.documentElement.classList.add('role-channeling');
+						} else if (rawRole.toLowerCase() === 'retention') {
+							document.documentElement.classList.add('role-retention');
+						}
+
+						const rawJenisPegawai = userData.jenis_pegawai_name || '';
+						if (rawJenisPegawai.toLowerCase() === 'cco' || rawJenisPegawai.toLowerCase() === 'cro') {
+							document.documentElement.classList.add('role-ppd');
 						}
 					}
 				} catch(e) {}
@@ -54,6 +64,9 @@ License: For each use you must have a valid license purchased only from above li
 		</script>
 		<style>
 			html:not(.role-admin) .admin-menu-item { display: none !important; }
+			html:not(.role-admin):not(.role-channeling) .aksi-menu-item { display: none !important; }
+			html:not(.role-admin):not(.role-retention) .ho-menu-item { display: none !important; }
+			html:not(.role-ppd) .ppd-menu-item { display: none !important; }
 		</style>
 	</head>
 	<!--end::Head-->

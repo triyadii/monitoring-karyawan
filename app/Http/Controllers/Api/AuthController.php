@@ -76,13 +76,14 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         $user = auth('api')->user();
-        $user->load('role');
+        $user->load(['role', 'jenisPegawai']);
 
         return response()->json([
             'user' => [
                 'id' => $user->id,
                 'role_id' => $user->role_id,
                 'role_name' => $user->role ? $user->role->nama_role : '',
+                'jenis_pegawai_name' => $user->jenisPegawai ? $user->jenisPegawai->nama_jenis_pegawai : '',
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'status' => $user->status,

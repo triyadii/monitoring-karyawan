@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['role_id', 'username', 'password', 'nama', 'status'])]
+#[Fillable(['role_id', 'jenis_pegawai_id', 'username', 'password', 'nama', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject
 {
@@ -22,6 +22,11 @@ class User extends Authenticatable implements JWTSubject
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function jenisPegawai()
+    {
+        return $this->belongsTo(JenisPegawai::class, 'jenis_pegawai_id', 'uuid');
     }
 
     public function kegiatanAnggotas()

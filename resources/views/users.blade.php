@@ -31,6 +31,7 @@
                             <th class="min-w-125px">Nama</th>
                             <th class="min-w-125px">Username</th>
                             <th class="min-w-125px">Role</th>
+                            <th class="min-w-125px">Jenis Pegawai</th>
                             <th class="min-w-125px">Status</th>
                             <th class="text-end min-w-100px">Actions</th>
                         </tr>
@@ -92,6 +93,14 @@
                     </div>
 
                     <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="fs-6 fw-semibold form-label mb-2">Jenis Pegawai</label>
+                        <select name="jenis_pegawai_id" id="jenis_pegawai_id" data-control="select2" data-dropdown-parent="#kt_modal_add_user" data-placeholder="Pilih Jenis Pegawai..." class="form-select form-select-solid">
+                            <option value="">Pilih Jenis Pegawai...</option>
+                            <!-- Loaded via AJAX -->
+                        </select>
+                    </div>
+
+                    <div class="d-flex flex-column mb-7 fv-row">
                         <label class="required fs-6 fw-semibold form-label mb-2">Status</label>
                         <select name="status" id="status" class="form-select form-select-solid">
                             <option value="1">Aktif</option>
@@ -142,6 +151,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     loadRoles();
 
+    // 1.5 Fetch Jenis Pegawai for Dropdown
+    function loadJenisPegawai() {
+        fetch(`${apiUrl}/jenis-pegawai`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const jpSelect = document.getElementById('jenis_pegawai_id');
+            while (jpSelect.options.length > 1) {
+                jpSelect.remove(1);
+            }
+            data.forEach(jp => {
+                const option = document.createElement('option');
+                option.value = jp.uuid;
+                option.text = jp.jenisPegawai;
+                jpSelect.add(option);
+            });
+        })
+        .catch(error => console.error('Error fetching jenis pegawai:', error));
+    }
+    loadJenisPegawai();
+
     // 2. Initialize DataTable
     var datatable = $('#kt_table_users').DataTable({
         ajax: {
@@ -155,6 +187,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: 'username' },
             { data: 'role', render: function(data) {
                 return data ? `<span class="badge badge-light-primary">${data.nama_role}</span>` : '-';
+            }},
+            { data: 'jenis_pegawai', render: function(data) {
+                return data ? `<span class="badge badge-light-info">${data.jenisPegawai}</span>` : '-';
             }},
             { data: 'status', render: function(data) {
                 return data == 1 
@@ -220,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nama: document.getElementById('nama').value,
             username: document.getElementById('username').value,
             role_id: document.getElementById('role_id').value,
+            jenis_pegawai_id: document.getElementById('jenis_pegawai_id').value,
             status: document.getElementById('status').value
         };
 
@@ -285,6 +321,7 @@ window.resetForm = function() {
     document.getElementById('user_id').value = "";
     document.getElementById('modal_title').innerText = "Tambah User";
     $('#role_id').val("").trigger('change');
+    $('#jenis_pegawai_id').val("").trigger('change');
     document.getElementById('password_container').classList.remove('d-none');
     document.getElementById('password_container').classList.add('d-flex');
 }
@@ -300,6 +337,14 @@ window.editUser = function(user) {
     // Select2 needs to be triggered to show the selected value
     if (user.role_id) {
         $('#role_id').val(user.role_id).trigger('change');
+    } else {
+        $('#role_id').val("").trigger('change');
+    }
+
+    if (user.jenis_pegawai_id) {
+        $('#jenis_pegawai_id').val(user.jenis_pegawai_id).trigger('change');
+    } else {
+        $('#jenis_pegawai_id').val("").trigger('change');
     }
     
     document.getElementById('password_container').classList.remove('d-flex');

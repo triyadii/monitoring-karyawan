@@ -61,6 +61,134 @@
 										</div>
 										<!--end:Menu item-->
 										<!--begin:Menu item-->
+										<div class="menu-item pt-5">
+											<!--begin:Menu content-->
+											<div class="menu-content">
+												<span class="menu-heading fw-bold text-uppercase fs-7">Penginputan Data Client</span>
+											</div>
+											<!--end:Menu content-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('clients') ? 'active' : '' }}" href="{{ route('clients') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-briefcase fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen Clients</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('kegiatan-anggota') ? 'active' : '' }}" href="{{ route('kegiatan-anggota') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-calendar-8 fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+														<span class="path3"></span>
+														<span class="path4"></span>
+														<span class="path5"></span>
+														<span class="path6"></span>
+													</i>
+												</span>
+												<span class="menu-title">Kegiatan Anggota</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--begin:Menu item-->
+										<div class="menu-item aksi-menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('manajemen-aksi') ? 'active' : '' }}" href="{{ route('manajemen-aksi') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-abstract-26 fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen Aksi</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item aksi-menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('manajemen-canvasing') ? 'active' : '' }}" href="{{ route('manajemen-canvasing') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-map fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+														<span class="path3"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen Canvasing</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item aksi-menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('manajemen-visit') ? 'active' : '' }}" href="{{ route('manajemen-visit') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-abstract-14 fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen Visit</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item ho-menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('manajemen-ho') ? 'active' : '' }}" href="{{ route('manajemen-ho') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-abstract-28 fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen HO</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
+										<div class="menu-item ppd-menu-item">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('manajemen-ppd') ? 'active' : '' }}" href="{{ route('manajemen-ppd') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-briefcase fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen PPD</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+										
+										<!--begin:Menu item-->
+										<div class="menu-item pt-5 admin-menu-item">
+											<!--begin:Menu content-->
+											<div class="menu-content">
+												<span class="menu-heading fw-bold text-uppercase fs-7">Manajemen Aplikasi</span>
+											</div>
+											<!--end:Menu content-->
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_users">
 											<!--begin:Menu link-->
 											<a class="menu-link {{ request()->is('users') ? 'active' : '' }}" href="{{ route('users') }}">
@@ -109,6 +237,22 @@
 										</div>
 										<!--end:Menu item-->
 										<!--begin:Menu item-->
+										<div class="menu-item admin-menu-item" id="menu_jenis_pegawai">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('jenis-pegawai') ? 'active' : '' }}" href="{{ route('jenis-pegawai') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-category fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+														<span class="path3"></span>
+														<span class="path4"></span>
+													</i>
+												</span>
+												<span class="menu-title">Manajemen Jenis Pegawai</span>
+											</a>
+										</div>
+										<!--end:Menu item-->
+										<!--begin:Menu item-->
 										<div class="menu-item admin-menu-item" id="menu_master_status">
 											<!--begin:Menu link-->
 											<a class="menu-link {{ request()->is('master-status-client') ? 'active' : '' }}" href="{{ route('master-status-client') }}">
@@ -121,40 +265,6 @@
 													</i>
 												</span>
 												<span class="menu-title">Manajemen Status Client</span>
-											</a>
-											<!--end:Menu link-->
-										</div>
-										<!--end:Menu item-->
-										<!--begin:Menu item-->
-										<div class="menu-item">
-											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('clients') ? 'active' : '' }}" href="{{ route('clients') }}">
-												<span class="menu-icon">
-													<i class="ki-duotone ki-briefcase fs-2">
-														<span class="path1"></span>
-														<span class="path2"></span>
-													</i>
-												</span>
-												<span class="menu-title">Manajemen Clients</span>
-											</a>
-											<!--end:Menu link-->
-										</div>
-										<!--end:Menu item-->
-										<!--begin:Menu item-->
-										<div class="menu-item">
-											<!--begin:Menu link-->
-											<a class="menu-link {{ request()->is('kegiatan-anggota') ? 'active' : '' }}" href="{{ route('kegiatan-anggota') }}">
-												<span class="menu-icon">
-													<i class="ki-duotone ki-calendar-8 fs-2">
-														<span class="path1"></span>
-														<span class="path2"></span>
-														<span class="path3"></span>
-														<span class="path4"></span>
-														<span class="path5"></span>
-														<span class="path6"></span>
-													</i>
-												</span>
-												<span class="menu-title">Kegiatan Anggota</span>
 											</a>
 											<!--end:Menu link-->
 										</div>

@@ -579,6 +579,196 @@
                 ]
             }
         },
+        "/api/jenis-pegawai": {
+            "get": {
+                "tags": [
+                    "Jenis Pegawai"
+                ],
+                "summary": "Get list of Jenis Pegawai",
+                "operationId": "916309fa2971cc16b690b3cbd0eb22cf",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Jenis Pegawai"
+                ],
+                "summary": "Create new Jenis Pegawai",
+                "operationId": "77656d9bbc5fd93a57b48c6e42921328",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "jenisPegawai"
+                                ],
+                                "properties": {
+                                    "jenisPegawai": {
+                                        "type": "string",
+                                        "example": "Tetap"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jenis Pegawai created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jenis-pegawai/{jenis_pegawai}": {
+            "get": {
+                "tags": [
+                    "Jenis Pegawai"
+                ],
+                "summary": "Get Jenis Pegawai by UUID",
+                "operationId": "03a81fddff041f99cbc09cd56c9a234f",
+                "parameters": [
+                    {
+                        "name": "jenis_pegawai",
+                        "in": "path",
+                        "description": "UUID of Jenis Pegawai",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Jenis Pegawai"
+                ],
+                "summary": "Update Jenis Pegawai",
+                "operationId": "9c7ae1798059bee64e901b0c2cf9f080",
+                "parameters": [
+                    {
+                        "name": "jenis_pegawai",
+                        "in": "path",
+                        "description": "UUID of Jenis Pegawai",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "jenisPegawai"
+                                ],
+                                "properties": {
+                                    "jenisPegawai": {
+                                        "type": "string",
+                                        "example": "Kontrak"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Jenis Pegawai updated"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Jenis Pegawai"
+                ],
+                "summary": "Delete Jenis Pegawai",
+                "operationId": "475d45fd2cca409b4436b6fdec8f36f6",
+                "parameters": [
+                    {
+                        "name": "jenis_pegawai",
+                        "in": "path",
+                        "description": "UUID of Jenis Pegawai",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jenis Pegawai deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/kegiatan-anggota": {
             "get": {
                 "tags": [
@@ -837,6 +1027,224 @@
                 ]
             }
         },
+        "/api/manajemen-aksi": {
+            "get": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Get list of manajemen aksi",
+                "operationId": "f553d3b970ecaa8979464e1d589a8ee8",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Create new aksi",
+                "operationId": "f66a5944a159fb3568bfe87cd8d158ed",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "namaAksi"
+                                ],
+                                "properties": {
+                                    "idAksi": {
+                                        "description": "ID Aksi (Manual Input)",
+                                        "type": "string"
+                                    },
+                                    "namaAksi": {
+                                        "type": "string"
+                                    },
+                                    "kegiatan": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "integer",
+                                        "default": 1
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Aksi created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-aksi/{uuid}": {
+            "get": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Get aksi details",
+                "operationId": "fec8325ac87daa7cc4d577401ca050ef",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Aksi not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Update aksi (using POST with _method=PUT for multipart/form-data)",
+                "operationId": "249e5255fb9aaa3cc7da06893b7de083",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "_method": {
+                                        "description": "Method spoofing for PUT request",
+                                        "type": "string",
+                                        "example": "PUT"
+                                    },
+                                    "idAksi": {
+                                        "type": "string"
+                                    },
+                                    "namaAksi": {
+                                        "type": "string"
+                                    },
+                                    "kegiatan": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1
+                                        ]
+                                    },
+                                    "foto[]": {
+                                        "description": "Upload new images to replace old ones. Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Aksi updated"
+                    },
+                    "404": {
+                        "description": "Aksi not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Delete aksi",
+                "operationId": "bc0b755909858d37fce62f1c55c8f557",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Aksi deleted"
+                    },
+                    "404": {
+                        "description": "Aksi not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/roles": {
             "get": {
                 "tags": [
@@ -1056,6 +1464,10 @@
                                         "type": "string",
                                         "format": "uuid"
                                     },
+                                    "jenis_pegawai_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
                                     "username": {
                                         "type": "string"
                                     },
@@ -1147,6 +1559,10 @@
                             "schema": {
                                 "properties": {
                                     "role_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "jenis_pegawai_id": {
                                         "type": "string",
                                         "format": "uuid"
                                     },
@@ -1515,8 +1931,16 @@
             "description": "Clients"
         },
         {
+            "name": "Jenis Pegawai",
+            "description": "Jenis Pegawai"
+        },
+        {
             "name": "Kegiatan Anggota",
             "description": "Kegiatan Anggota"
+        },
+        {
+            "name": "Manajemen Aksi",
+            "description": "Manajemen Aksi"
         },
         {
             "name": "Roles",
