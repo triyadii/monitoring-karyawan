@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\ManajemenHo;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -16,19 +17,19 @@ class ManajemenHoExport implements FromCollection, WithHeadings, WithMapping
         $this->request = $request;
     }
 
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         $query = ManajemenHo::with(['user', 'status']);
-        
-        if (!empty($this->request['user_id'])) {
+
+        if (! empty($this->request['user_id'])) {
             $query->where('user_id', $this->request['user_id']);
         }
 
-        if (!empty($this->request['filter_nama'])) {
-            $query->where('namaClient', 'like', '%' . $this->request['filter_nama'] . '%');
+        if (! empty($this->request['filter_nama'])) {
+            $query->where('namaClient', 'like', '%'.$this->request['filter_nama'].'%');
         }
 
-        if (!empty($this->request['filter_tanggal'])) {
+        if (! empty($this->request['filter_tanggal'])) {
             $query->whereDate('created_at', $this->request['filter_tanggal']);
         }
 

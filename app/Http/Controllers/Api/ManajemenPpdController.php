@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ManajemenPpdExport;
 use App\Http\Controllers\Controller;
 use App\Models\ManajemenPpd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ManajemenPpdExport;
 use OpenApi\Attributes as OA;
 
 class ManajemenPpdController extends Controller
@@ -20,7 +20,7 @@ class ManajemenPpdController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
@@ -30,20 +30,21 @@ class ManajemenPpdController extends Controller
     public function index(Request $request)
     {
         $query = ManajemenPpd::with('user');
-        
-        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+
+        if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
         }
 
-        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
-            $query->where('namaClient', 'like', '%' . $request->query('filter_nama') . '%');
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');
         }
 
-        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
             $query->whereDate('created_at', $request->query('filter_tanggal'));
         }
 
         $ppds = $query->get();
+
         return response()->json($ppds);
     }
 
@@ -71,7 +72,7 @@ class ManajemenPpdController extends Controller
                         new OA\Property(property: 'pinjaman', type: 'string'),
                         new OA\Property(property: 'jatuhTempo', type: 'string', format: 'date'),
                         new OA\Property(
-                            property: 'ktp', 
+                            property: 'ktp',
                             type: 'string',
                             format: 'binary',
                             description: 'Image KTP (jpeg, png, jpg)'
@@ -109,7 +110,7 @@ class ManajemenPpdController extends Controller
 
         if ($request->hasFile('ktp')) {
             $path = $request->file('ktp')->store('ppd', 'public');
-            $validated['ktp'] = 'storage/' . $path;
+            $validated['ktp'] = 'storage/'.$path;
         }
 
         $ppd = ManajemenPpd::create($validated);
@@ -133,6 +134,7 @@ class ManajemenPpdController extends Controller
     public function show($uuid)
     {
         $ppd = ManajemenPpd::with(['user'])->findOrFail($uuid);
+
         return response()->json($ppd);
     }
 
@@ -163,7 +165,7 @@ class ManajemenPpdController extends Controller
                         new OA\Property(property: 'pinjaman', type: 'string'),
                         new OA\Property(property: 'jatuhTempo', type: 'string', format: 'date'),
                         new OA\Property(
-                            property: 'ktp', 
+                            property: 'ktp',
                             type: 'string',
                             format: 'binary',
                             description: 'Image KTP (jpeg, png, jpg)'
@@ -207,7 +209,7 @@ class ManajemenPpdController extends Controller
             }
 
             $path = $request->file('ktp')->store('ppd', 'public');
-            $validated['ktp'] = 'storage/' . $path;
+            $validated['ktp'] = 'storage/'.$path;
         }
 
         $ppd->update($validated);
@@ -252,14 +254,46 @@ class ManajemenPpdController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'File downloaded successfully')
+            new OA\Response(response: 200, description: 'File downloaded successfully'),
         ]
     )]
     public function export(Request $request)
     {
         return Excel::download(new ManajemenPpdExport($request->all()), 'manajemen_ppd.xlsx');
+    }
+
+    #[OA\Get(
+        path: '/api/manajemen-ppd/user/{userId}',
+        summary: 'Get list of ManajemenPpd by user id',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen Ppd'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function getByUser(Request $request, $userId)
+    {
+        $query = ManajemenPpd::with('user')->where('user_id', $userId);
+
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');
+        }
+
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        }
+
+        $data = $query->get();
+
+        return response()->json($data);
     }
 }

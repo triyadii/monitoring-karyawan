@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Imports\ClientsImport;
 use App\Models\Client;
+use App\Models\MasterStatusClient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -175,7 +176,7 @@ class ClientController extends Controller
         ]);
 
         $client->update($validated);
-        
+
         // Return with eager loaded status so frontend can display correctly
         $client->load('status');
 
@@ -398,11 +399,11 @@ class ClientController extends Controller
     public function getStatusStats()
     {
         // Join with master_status_clients to get the names, and group by status_client
-        $stats = Client::select('status_client', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+        $stats = Client::select('status_client', DB::raw('count(*) as total'))
             ->groupBy('status_client')
             ->pluck('total', 'status_client');
 
-        $masterStatuses = \App\Models\MasterStatusClient::all();
+        $masterStatuses = MasterStatusClient::all();
         $result = $masterStatuses->map(function ($status) use ($stats) {
             return [
                 'status_id' => $status->id,

@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
 use App\Models\MasterStatusClient;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class MasterStatusClientSeeder extends Seeder
@@ -19,13 +17,13 @@ class MasterStatusClientSeeder extends Seeder
             'Berminat',
             'Belum berminat',
             'Tidak aktif',
-            'Aktif tidak diangkat'
+            'Aktif tidak diangkat',
         ];
 
         foreach ($statuses as $status) {
             MasterStatusClient::firstOrCreate(['nama_status' => $status], [
                 'id' => Str::uuid()->toString(),
-                'nama_status' => $status
+                'nama_status' => $status,
             ]);
         }
     }

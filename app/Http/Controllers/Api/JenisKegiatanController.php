@@ -27,6 +27,7 @@ class JenisKegiatanController extends Controller
     public function show($id)
     {
         $jenisKegiatan = JenisKegiatan::findOrFail($id);
+
         return response()->json($jenisKegiatan);
     }
 

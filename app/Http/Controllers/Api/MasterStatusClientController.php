@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\MasterStatusClient;
 use Illuminate\Http\Request;
 
@@ -22,10 +23,11 @@ class MasterStatusClientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_status' => 'required|string|max:255|unique:master_status_clients,nama_status'
+            'nama_status' => 'required|string|max:255|unique:master_status_clients,nama_status',
         ]);
 
         $status = MasterStatusClient::create($validated);
+
         return response()->json($status, 201);
     }
 
@@ -35,6 +37,7 @@ class MasterStatusClientController extends Controller
     public function show(string $id)
     {
         $status = MasterStatusClient::findOrFail($id);
+
         return response()->json($status);
     }
 
@@ -45,10 +48,11 @@ class MasterStatusClientController extends Controller
     {
         $status = MasterStatusClient::findOrFail($id);
         $validated = $request->validate([
-            'nama_status' => 'required|string|max:255|unique:master_status_clients,nama_status,' . $id
+            'nama_status' => 'required|string|max:255|unique:master_status_clients,nama_status,'.$id,
         ]);
 
         $status->update($validated);
+
         return response()->json($status);
     }
 
@@ -58,14 +62,15 @@ class MasterStatusClientController extends Controller
     public function destroy(string $id)
     {
         $status = MasterStatusClient::findOrFail($id);
-        
+
         // Cek jika status ini sudah digunakan oleh client
-        $isUsed = \App\Models\Client::where('status_client', $id)->exists();
+        $isUsed = Client::where('status_client', $id)->exists();
         if ($isUsed) {
             return response()->json(['message' => 'Status ini tidak dapat dihapus karena sedang digunakan oleh satu atau lebih client.'], 400);
         }
 
         $status->delete();
+
         return response()->json(['message' => 'Status deleted successfully']);
     }
 }

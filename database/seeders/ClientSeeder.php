@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Client;
+use App\Models\MasterStatusClient;
 use Illuminate\Database\Seeder;
 
 class ClientSeeder extends Seeder
@@ -12,7 +13,7 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        $status = \App\Models\MasterStatusClient::first();
+        $status = MasterStatusClient::first();
         $statusId = $status ? $status->id : null;
 
         Client::create([

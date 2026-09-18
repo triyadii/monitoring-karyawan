@@ -3,6 +3,8 @@
 namespace App\Exports;
 
 use App\Models\ManajemenPpd;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -16,19 +18,19 @@ class ManajemenPpdExport implements FromCollection, WithHeadings, WithMapping
         $this->request = $request;
     }
 
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         $query = ManajemenPpd::with(['user']);
-        
-        if (!empty($this->request['user_id'])) {
+
+        if (! empty($this->request['user_id'])) {
             $query->where('user_id', $this->request['user_id']);
         }
 
-        if (!empty($this->request['filter_nama'])) {
-            $query->where('namaClient', 'like', '%' . $this->request['filter_nama'] . '%');
+        if (! empty($this->request['filter_nama'])) {
+            $query->where('namaClient', 'like', '%'.$this->request['filter_nama'].'%');
         }
 
-        if (!empty($this->request['filter_tanggal'])) {
+        if (! empty($this->request['filter_tanggal'])) {
             $query->whereDate('created_at', $this->request['filter_tanggal']);
         }
 
@@ -69,7 +71,7 @@ class ManajemenPpdExport implements FromCollection, WithHeadings, WithMapping
             $row->type,
             $row->jenisKendaraan,
             $row->pinjaman,
-            $row->jatuhTempo ? \Carbon\Carbon::parse($row->jatuhTempo)->format('Y-m-d') : '-',
+            $row->jatuhTempo ? Carbon::parse($row->jatuhTempo)->format('Y-m-d') : '-',
             $row->user ? $row->user->nama : '-',
             $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : '-',
         ];

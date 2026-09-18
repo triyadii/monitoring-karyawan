@@ -11,7 +11,7 @@ class LogApiRequests
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-        
+
         Log::info('API Request', [
             'method' => $request->method(),
             'url' => $request->fullUrl(),
@@ -19,7 +19,7 @@ class LogApiRequests
             'headers' => $request->headers->all(),
             'auth_id' => auth()->id() ?? auth('api')->id(),
         ]);
-        
+
         return $response;
     }
 }

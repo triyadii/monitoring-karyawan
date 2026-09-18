@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class MemberStatsController extends Controller
@@ -20,12 +19,12 @@ class MemberStatsController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string', enum: ['aksi', 'visit', 'canvasing', 'ho', 'ppd'])
-            )
+            ),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
             new OA\Response(response: 401, description: 'Unauthorized'),
-            new OA\Response(response: 400, description: 'Invalid type')
+            new OA\Response(response: 400, description: 'Invalid type'),
         ]
     )]
     public function getStats($type)
@@ -40,7 +39,7 @@ class MemberStatsController extends Controller
             'ppd' => 'manajemenPpd',
         ];
 
-        if (!array_key_exists($type, $relationMap)) {
+        if (! array_key_exists($type, $relationMap)) {
             return response()->json(['error' => 'Invalid type'], 400);
         }
 
@@ -57,14 +56,15 @@ class MemberStatsController extends Controller
         } elseif ($type === 'ppd') {
             $query->whereHas('jenisPegawai', function ($q) {
                 $q->where('jenisPegawai', 'ilike', 'cco')
-                  ->orWhere('jenisPegawai', 'ilike', 'cro');
+                    ->orWhere('jenisPegawai', 'ilike', 'cro');
             });
         }
 
         $members = $query->withCount($relationCount)->get();
 
         $result = $members->map(function ($user) use ($relationCount) {
-            $countKey = $relationCount . '_count';
+            $countKey = \Illuminate\Support\Str::snake($relationCount).'_count';
+
             return [
                 'id' => $user->id,
                 'uuid' => $user->uuid,
@@ -72,7 +72,7 @@ class MemberStatsController extends Controller
                 'username' => $user->username,
                 'role' => $user->role ? $user->role->nama_role : '-',
                 'jenis_pegawai' => $user->jenisPegawai ? $user->jenisPegawai->jenisPegawai : '-',
-                'total_input' => $user->$countKey
+                'total_input' => $user->$countKey,
             ];
         });
 

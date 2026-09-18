@@ -67,7 +67,7 @@ class JenisPegawaiController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string')
-            )
+            ),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
@@ -92,7 +92,7 @@ class JenisPegawaiController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string')
-            )
+            ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -133,7 +133,7 @@ class JenisPegawaiController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string')
-            )
+            ),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Jenis Pegawai deleted'),

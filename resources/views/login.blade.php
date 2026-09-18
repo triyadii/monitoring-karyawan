@@ -45,50 +45,55 @@ License: For each use you must have a valid license purchased only from above li
 		<div class="d-flex flex-column flex-root" id="kt_app_root">
 			<!--begin::Authentication - Sign-in -->
 			<div class="d-flex flex-column flex-lg-row flex-column-fluid">
-				<!--begin::Logo-->
-				<a href="#" class="d-block d-lg-none mx-auto py-20">
-					<img alt="Logo" src="{{ asset('logo.png') }}" class="h-45px" />
-				</a>
-				<!--end::Logo-->
 				<!--begin::Aside-->
-				<div class="d-flex flex-column flex-column-fluid flex-center w-lg-50 p-10">
+				<div class="d-flex flex-column flex-column-fluid flex-center w-lg-50 p-6 p-lg-10">
+					<!--begin::Mobile Logo-->
+					<a href="#" class="d-block d-lg-none mb-10 text-center">
+						<img alt="Logo" src="{{ asset('logo.png') }}" class="h-60px theme-light-show" />
+					</a>
+					<!--end::Mobile Logo-->
+
 					<!--begin::Wrapper-->
-					<div class="d-flex justify-content-between flex-column-fluid flex-column w-100 mw-450px">
-						<!--begin::Header-->
-						<div class="d-flex flex-stack py-2">
-							<!--begin::Back link-->
-							<div class="me-2"></div>
-							<!--end::Back link-->
-						</div>
-						<!--end::Header-->
-						<!--begin::Body-->
-						<div class="py-20">
-							<!--begin::Form-->
-							<form class="form w-100" novalidate="novalidate" id="loginForm" action="{{ url('/api/login') }}">
-								<div class="card shadow-sm p-10 p-lg-15 rounded-4">
+					<div class="w-100 mw-450px">
+						<!--begin::Form-->
+						<form class="form w-100" novalidate="novalidate" id="loginForm" action="{{ url('/api/login') }}">
+							<div class="card shadow-sm p-8 p-lg-12 rounded-4 border-0">
 								<!--begin::Body-->
 								<div class="card-body p-0">
 									<!--begin::Heading-->
-									<div class="text-start mb-10">
+									<div class="text-center mb-12">
 										<!--begin::Title-->
-										<h1 class="text-gray-900 mb-3 fs-3x">Login ke Sistem</h1>
+										<h1 class="text-gray-900 mb-3 fs-2x fw-bold">Login ke Sistem</h1>
 										<!--end::Title-->
 										<!--begin::Text-->
 										<div class="text-gray-500 fw-semibold fs-6">Aplikasi Monitoring Karyawan & Client</div>
 										<!--end::Link-->
 									</div>
 									<!--begin::Heading-->
-									<!--begin::Input group=-->
+									
+									<!--begin::Input group-->
 									<div class="fv-row mb-8">
+										<!--begin::Label-->
+										<label class="form-label fs-6 fw-bold text-gray-900">Username</label>
+										<!--end::Label-->
 										<!--begin::Username-->
-										<input type="text" placeholder="Username" name="username" autocomplete="off" class="form-control form-control-solid" />
+										<input type="text" placeholder="Masukkan Username Anda" name="username" autocomplete="off" class="form-control form-control-solid bg-light-secondary rounded-3" />
 										<!--end::Username-->
 									</div>
-									<!--end::Input group=-->
-									<div class="fv-row mb-7" data-kt-password-meter="true">
+									<!--end::Input group-->
+									
+									<!--begin::Input group-->
+									<div class="fv-row mb-10" data-kt-password-meter="true">
+										<!--begin::Wrapper-->
+										<div class="d-flex flex-stack mb-2">
+											<!--begin::Label-->
+											<label class="form-label fs-6 fw-bold text-gray-900 mb-0">Password</label>
+											<!--end::Label-->
+										</div>
+										<!--end::Wrapper-->
 										<!--begin::Password-->
 										<div class="position-relative mb-3">
-											<input class="form-control form-control-solid" type="password" placeholder="Password" name="password" autocomplete="off" />
+											<input class="form-control form-control-solid bg-light-secondary rounded-3" type="password" placeholder="Masukkan Password Anda" name="password" autocomplete="off" />
 											<span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
 												<i class="ki-duotone ki-eye-slash fs-2">
 													<span class="path1"></span>
@@ -105,18 +110,18 @@ License: For each use you must have a valid license purchased only from above li
 										</div>
 										<!--end::Password-->
 									</div>
-									<!--end::Input group=-->
+									<!--end::Input group-->
 
 									<!--begin::Actions-->
-									<div class="d-flex flex-stack">
+									<div class="d-flex flex-stack pt-4">
 										<!--begin::Submit-->
-										<button type="submit" id="kt_sign_in_submit" class="btn btn-primary me-2 flex-shrink-0 w-100">
+										<button type="submit" id="kt_sign_in_submit" class="btn btn-primary me-2 flex-shrink-0 w-100 py-3 rounded-3 fw-bold">
 											<!--begin::Indicator label-->
-											<span class="indicator-label">Sign In</span>
+											<span class="indicator-label fs-5">Masuk Sekarang</span>
 											<!--end::Indicator label-->
 											<!--begin::Indicator progress-->
-											<span class="indicator-progress">
-												<span>Please wait...</span>
+											<span class="indicator-progress fs-5">
+												Mohon tunggu...
 												<span class="spinner-border spinner-border-sm align-middle ms-2"></span>
 											</span>
 											<!--end::Indicator progress-->
@@ -125,29 +130,26 @@ License: For each use you must have a valid license purchased only from above li
 									</div>
 									<!--end::Actions-->
 								</div>
-								<!--begin::Body-->
-								</div>
-							</form>
-							<!--end::Form-->
-						</div>
-						<!--end::Body-->
-						<!--begin::Footer-->
-						<!--end::Footer-->
+								<!--end::Body-->
+							</div>
+						</form>
+						<!--end::Form-->
 					</div>
 					<!--end::Wrapper-->
 				</div>
 				<!--end::Aside-->
+				
 				<!--begin::Body-->
-				<div class="d-none d-lg-flex flex-lg-row-fluid w-50 flex-center position-relative overflow-hidden" style="background: linear-gradient(135deg, #1e1e2d 0%, #009ef7 100%);">
+				<div class="d-none d-lg-flex flex-lg-row-fluid w-50 flex-center position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #1e1e2d 0%, #009ef7 100%);">
 					<div style="position: absolute; top: -10%; left: -10%; width: 50%; padding-bottom: 50%; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
 					<div style="position: absolute; bottom: -10%; right: -10%; width: 50%; padding-bottom: 50%; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
 					
 					<div class="d-flex flex-column align-items-center text-center p-10" style="z-index: 1;">
-						<div class="bg-white p-8 rounded-4 shadow-sm mb-10 d-flex flex-center" style="width: 180px; height: 180px;">
+						<div class="bg-white p-8 rounded-4 shadow-sm mb-12 d-flex flex-center" style="width: 200px; height: 200px;">
 							<img alt="Logo" src="{{ asset('logo.png') }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
 						</div>
-						<h2 class="text-white fw-bold mb-3 fs-2hx">Sistem Monitoring Terpadu</h2>
-						<p class="text-white opacity-75 fw-semibold fs-5 max-w-400px">
+						<h2 class="text-white fw-bold mb-4 fs-1" style="letter-spacing: 1px;">Sistem Monitoring Terpadu</h2>
+						<p class="text-white opacity-75 fw-semibold fs-5 max-w-450px lh-lg">
 							Pantau aktivitas anggota dan kelola data klien dengan lebih mudah, cepat, dan akurat melalui satu platform cerdas.
 						</p>
 					</div>

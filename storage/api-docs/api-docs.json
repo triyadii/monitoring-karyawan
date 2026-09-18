@@ -1364,6 +1364,56 @@
                 ]
             }
         },
+        "/api/manajemen-aksi/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Manajemen Aksi"
+                ],
+                "summary": "Get list of ManajemenAksi by user id",
+                "operationId": "214395f56c561943214e9da75691fcd1",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/manajemen-canvasing": {
             "get": {
                 "tags": [
@@ -1638,6 +1688,56 @@
                 ]
             }
         },
+        "/api/manajemen-canvasing/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Manajemen Canvasing"
+                ],
+                "summary": "Get list of ManajemenCanvasing by user id",
+                "operationId": "da47eead5e3385fdbb59bbc106f6db43",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/manajemen-ho": {
             "get": {
                 "tags": [
@@ -1903,6 +2003,56 @@
                 "responses": {
                     "200": {
                         "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-ho/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Manajemen Ho"
+                ],
+                "summary": "Get list of ManajemenHo by user id",
+                "operationId": "d173c1e642af1dffc406a76165cb0a86",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
@@ -2237,6 +2387,56 @@
                 ]
             }
         },
+        "/api/manajemen-ppd/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Manajemen Ppd"
+                ],
+                "summary": "Get list of ManajemenPpd by user id",
+                "operationId": "8e896359b1bd5fa35bed343ce5cfb454",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/manajemen-visit": {
             "get": {
                 "tags": [
@@ -2528,6 +2728,56 @@
                 "responses": {
                     "200": {
                         "description": "File downloaded successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/manajemen-visit/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Manajemen Visit"
+                ],
+                "summary": "Get list of ManajemenVisit by user id",
+                "operationId": "cb6f46bf2f90925a9a0c38f331d0d9ac",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter_nama",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_tanggal",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
@@ -3289,8 +3539,16 @@
             "description": "Manajemen HO"
         },
         {
+            "name": "Manajemen Ho",
+            "description": "Manajemen Ho"
+        },
+        {
             "name": "Manajemen PPD",
             "description": "Manajemen PPD"
+        },
+        {
+            "name": "Manajemen Ppd",
+            "description": "Manajemen Ppd"
         },
         {
             "name": "Manajemen Visit",

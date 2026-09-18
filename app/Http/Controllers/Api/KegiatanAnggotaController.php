@@ -19,8 +19,10 @@ class KegiatanAnggotaController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
+
         return $query->orderBy('created_at', 'desc');
     }
+
     #[OA\Get(
         path: '/api/kegiatan-anggota',
         summary: 'Get list of kegiatan',
@@ -43,7 +45,7 @@ class KegiatanAnggotaController extends Controller
         if ($request->has('user_id')) {
             $query->where('user_id', $request->user_id);
         }
-        
+
         $this->applyDateFilter($query, $request);
         $kegiatans = $query->with(['user', 'jenisKegiatan'])->get();
 
@@ -63,7 +65,7 @@ class KegiatanAnggotaController extends Controller
     {
         $query = KegiatanAnggota::with(['user', 'jenisKegiatan'])
             ->where('user_id', $request->user()->id);
-            
+
         $this->applyDateFilter($query, $request);
         $kegiatans = $query->get();
 
@@ -86,7 +88,7 @@ class KegiatanAnggotaController extends Controller
     public function getByUser(Request $request, $userId)
     {
         $query = KegiatanAnggota::with(['user', 'jenisKegiatan'])->where('user_id', $userId);
-        
+
         $this->applyDateFilter($query, $request);
         $kegiatans = $query->get();
 

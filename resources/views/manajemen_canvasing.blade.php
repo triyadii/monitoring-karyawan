@@ -6,38 +6,15 @@
 <div id="kt_app_content" class="app-content flex-column-fluid">
     <div id="kt_app_content_container" class="app-container container-xxl">
         
-        <div id="anggota_list_container" style="display: none;">
-            <div class="card card-flush">
-                <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                    <div class="card-title">
-                        <h3 class="fw-bold">Daftar Anggota Channeling</h3>
-                    </div>
-                </div>
-                <div class="card-body pt-0">
-                    <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_anggota">
-                        <thead>
-                            <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                <th class="min-w-150px">Nama Anggota</th>
-                                <th class="min-w-150px">Username</th>
-                                <th class="min-w-125px">Role / Jabatan</th>
-                                <th class="min-w-125px">Total Data Input</th>
-                                <th class="text-end min-w-100px">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="fw-semibold text-gray-600">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="row g-5 g-xl-8 mb-5" id="member_stats_cards" style="display: none;">
+            <!-- Cards will be injected here via JS -->
         </div>
 
         <div id="main_table_container">
             <div class="card card-flush">
                 <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                     <div class="card-title d-flex align-items-center gap-3">
-                        <button type="button" class="btn btn-sm btn-light" id="btn_back_to_members" style="display: none;" onclick="showMembersList()">
-                            <i class="ki-duotone ki-arrow-left fs-2"></i> Kembali
-                        </button>
+                        
                         <div class="d-flex align-items-center position-relative my-1">
                             <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
                                 <span class="path1"></span>
@@ -210,11 +187,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSuperAdminOrLeader = false;
     let selectedUserId = null;
     let anggotaDatatable = null;
+    let currentUserId = null;
 
     const userDataStr = localStorage.getItem('user_data');
     if (userDataStr) {
         try {
             const ud = JSON.parse(userDataStr);
+            currentUserId = ud.id;
             const role = ud.role_name || (ud.role && ud.role.nama_role) || '';
             const roleLower = role.toLowerCase();
             
@@ -228,32 +207,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (isSuperAdminOrLeader) {
-        document.getElementById('main_table_container').style.display = 'none';
-        document.getElementById('anggota_list_container').style.display = 'block';
-
-        anggotaDatatable = $('#kt_table_anggota').DataTable({
-            ajax: {
-                url: `${apiUrl}/member-stats/canvasing`,
-                type: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` },
-                dataSrc: ''
-            },
-            columns: [
-                { data: 'nama', defaultContent: '-' },
-                { data: 'username', defaultContent: '-' },
-                { data: 'role', defaultContent: '-', render: function(data, type, row) {
-                    return data !== '-' ? data : row.jenis_pegawai;
-                }},
-                { data: 'total_input', defaultContent: '0' },
-                { data: 'id', orderable: false, render: function(data, type, row) {
-                    return `
-                        <button class="btn btn-sm btn-light-primary" onclick="viewMemberData('${data}')">
-                            <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i> Lihat Data
-                        </button>
-                    `;
-                }}
-            ]
+        document.getElementById('member_stats_cards').style.display = 'flex';
+        fetch(`${apiUrl}/member-stats/canvasing`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let cardsHtml = `
+                <div class="col-xl-3 col-md-4 col-sm-6">
+                    <div class="card card-flush h-md-100 mb-5 cursor-pointer member-card border border-primary bg-light-primary" onclick="showAllMembersData(this)">
+                        <div class="card-header pt-4 pb-2">
+                            <div class="card-title d-flex flex-column">
+                                <span class="fs-2hx fw-bold text-primary me-2 lh-1 ls-n2">ALL</span>
+                                <span class="text-gray-600 pt-1 fw-semibold fs-6">Semua Anggota</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            data.forEach(member => {
+                let roleLabel = member.role !== '-' ? member.role : member.jenis_pegawai;
+                cardsHtml += `
+                    <div class="col-xl-3 col-md-4 col-sm-6">
+                        <div class="card card-flush h-md-100 mb-5 cursor-pointer member-card border" onclick="viewMemberData('${member.id}', this)">
+                            <div class="card-header pt-4 pb-2">
+                                <div class="card-title d-flex flex-column" style="width: 100%;">
+                                    <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">${member.total_input}</span>
+                                    <span class="text-gray-500 pt-1 fw-semibold fs-6 text-truncate" style="max-width: 100%; display: inline-block;" title="${member.nama}">${member.nama}</span>
+                                    <span class="text-muted fs-8">${roleLabel}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('member_stats_cards').innerHTML = cardsHtml;
         });
+        
+        if (hasCrudAccess) {
+            document.getElementById('btn_add_container').style.display = 'block';
+        }
     } else {
         if (hasCrudAccess) {
             document.getElementById('btn_add_container').style.display = 'block';
@@ -278,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTable
     var datatable = $('#kt_table_canvasings').DataTable({
         ajax: {
-            url: `${apiUrl}/manajemen-canvasing`,
+            url: isSuperAdminOrLeader ? `${apiUrl}/manajemen-canvasing` : `${apiUrl}/manajemen-canvasing/user/` + currentUserId,
             type: 'GET',
             headers: { 'Authorization': `Bearer ${token}` },
             data: function(d) {
@@ -393,8 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-});
-
 window.resetForm = function() {
     document.getElementById('kt_modal_add_canvasing_form').reset();
     document.getElementById('canvasing_uuid').value = "";
@@ -493,7 +484,11 @@ window.exportData = function(module) {
     const filterNama = document.getElementById('filter_nama')?.value || '';
     
     let url = `{{ url('/api/export/manajemen-canvasing') }}?`;
-    if (selectedUserId) url += `user_id=${selectedUserId}&`;
+    if (isSuperAdminOrLeader) {
+        if (selectedUserId) url += `user_id=${selectedUserId}&`;
+    } else {
+        if (currentUserId) url += `user_id=${currentUserId}&`;
+    }
     if (filterTanggal) url += `filter_tanggal=${filterTanggal}&`;
     if (filterNama) url += `filter_nama=${filterNama}&`;
 
@@ -524,26 +519,19 @@ window.exportData = function(module) {
     });
 }
 
-window.viewMemberData = function(userId) {
+window.viewMemberData = function(userId, el) {
     selectedUserId = userId;
-    document.getElementById('anggota_list_container').style.display = 'none';
-    document.getElementById('main_table_container').style.display = 'block';
-    document.getElementById('btn_back_to_members').style.display = 'block';
-    if (hasCrudAccess) {
-        document.getElementById('btn_add_container').style.display = 'block';
-    }
-    $('#kt_table_canvasings').DataTable().ajax.reload();
+    $('.member-card').removeClass('border-primary bg-light-primary');
+    if (el) $(el).addClass('border-primary bg-light-primary');
+    $('#kt_table_canvasings').DataTable().ajax.url(`${apiUrl}/manajemen-canvasing/user/${userId}`).load();
 }
 
-window.showMembersList = function() {
+window.showAllMembersData = function(el) {
     selectedUserId = null;
-    document.getElementById('main_table_container').style.display = 'none';
-    document.getElementById('btn_back_to_members').style.display = 'none';
-    document.getElementById('btn_add_container').style.display = 'none';
-    document.getElementById('anggota_list_container').style.display = 'block';
-    if (anggotaDatatable) {
-        anggotaDatatable.ajax.reload();
-    }
+    $('.member-card').removeClass('border-primary bg-light-primary');
+    if (el) $(el).addClass('border-primary bg-light-primary');
+    $('#kt_table_canvasings').DataTable().ajax.url(`${apiUrl}/manajemen-canvasing`).load();
 }
+});
 </script>
 @endsection

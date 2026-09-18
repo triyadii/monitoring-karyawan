@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 class UserController extends Controller
@@ -217,8 +218,8 @@ class UserController extends Controller
     public function resetPassword($id)
     {
         $user = User::findOrFail($id);
-        
-        $newPassword = \Illuminate\Support\Str::random(8);
+
+        $newPassword = Str::random(8);
 
         $user->update([
             'password' => Hash::make($newPassword),
@@ -226,7 +227,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Password reset successfully',
-            'new_password' => $newPassword
+            'new_password' => $newPassword,
         ]);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ManajemenAksiExport;
 use App\Http\Controllers\Controller;
 use App\Models\ManajemenAksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ManajemenAksiExport;
 use OpenApi\Attributes as OA;
 
 class ManajemenAksiController extends Controller
@@ -20,7 +20,7 @@ class ManajemenAksiController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
@@ -30,20 +30,21 @@ class ManajemenAksiController extends Controller
     public function index(Request $request)
     {
         $query = ManajemenAksi::with('user');
-        
-        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+
+        if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
         }
 
-        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
-            $query->where('namaAksi', 'like', '%' . $request->query('filter_nama') . '%');
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaAksi', 'like', '%'.$request->query('filter_nama').'%');
         }
 
-        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
             $query->whereDate('created_at', $request->query('filter_tanggal'));
         }
 
         $aksis = $query->get();
+
         return response()->json($aksis);
     }
 
@@ -64,7 +65,7 @@ class ManajemenAksiController extends Controller
                         new OA\Property(property: 'kegiatan', type: 'string'),
                         new OA\Property(property: 'status', type: 'integer', default: 1),
                         new OA\Property(
-                            property: 'foto[]', 
+                            property: 'foto[]',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Max 3 images (jpeg, png, jpg)'
@@ -91,7 +92,7 @@ class ManajemenAksiController extends Controller
         ]);
 
         $validated['status'] = $validated['status'] ?? 1;
-        
+
         if ($request->user()) {
             $validated['user_id'] = $request->user()->id;
         }
@@ -100,7 +101,7 @@ class ManajemenAksiController extends Controller
             $paths = [];
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('aksi', 'public');
-                $paths[] = 'storage/' . $path;
+                $paths[] = 'storage/'.$path;
             }
             $validated['foto'] = $paths;
         }
@@ -126,6 +127,7 @@ class ManajemenAksiController extends Controller
     public function show($uuid)
     {
         $aksi = ManajemenAksi::with('user')->findOrFail($uuid);
+
         return response()->json($aksi);
     }
 
@@ -149,7 +151,7 @@ class ManajemenAksiController extends Controller
                         new OA\Property(property: 'kegiatan', type: 'string'),
                         new OA\Property(property: 'status', type: 'integer', enum: [0, 1]),
                         new OA\Property(
-                            property: 'foto[]', 
+                            property: 'foto[]',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Upload new images to replace old ones. Max 3 images (jpeg, png, jpg)'
@@ -179,7 +181,7 @@ class ManajemenAksiController extends Controller
 
         if ($request->hasFile('foto')) {
             // Hapus foto lama jika ada
-            if (!empty($aksi->foto) && is_array($aksi->foto)) {
+            if (! empty($aksi->foto) && is_array($aksi->foto)) {
                 foreach ($aksi->foto as $oldFoto) {
                     $relativePath = str_replace('storage/', '', $oldFoto);
                     Storage::disk('public')->delete($relativePath);
@@ -189,7 +191,7 @@ class ManajemenAksiController extends Controller
             $paths = [];
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('aksi', 'public');
-                $paths[] = 'storage/' . $path;
+                $paths[] = 'storage/'.$path;
             }
             $validated['foto'] = $paths;
         } else {
@@ -217,9 +219,9 @@ class ManajemenAksiController extends Controller
     public function destroy($uuid)
     {
         $aksi = ManajemenAksi::findOrFail($uuid);
-        
+
         // Hapus file foto terkait
-        if (!empty($aksi->foto) && is_array($aksi->foto)) {
+        if (! empty($aksi->foto) && is_array($aksi->foto)) {
             foreach ($aksi->foto as $oldFoto) {
                 $relativePath = str_replace('storage/', '', $oldFoto);
                 Storage::disk('public')->delete($relativePath);
@@ -239,14 +241,46 @@ class ManajemenAksiController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'File downloaded successfully')
+            new OA\Response(response: 200, description: 'File downloaded successfully'),
         ]
     )]
     public function export(Request $request)
     {
         return Excel::download(new ManajemenAksiExport($request->all()), 'manajemen_aksi.xlsx');
+    }
+
+    #[OA\Get(
+        path: '/api/manajemen-aksi/user/{userId}',
+        summary: 'Get list of ManajemenAksi by user id',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen Aksi'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function getByUser(Request $request, $userId)
+    {
+        $query = ManajemenAksi::with('user')->where('user_id', $userId);
+
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaAksi', 'like', '%'.$request->query('filter_nama').'%');
+        }
+
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        }
+
+        $data = $query->get();
+
+        return response()->json($data);
     }
 }

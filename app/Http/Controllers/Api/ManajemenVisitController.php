@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ManajemenVisitExport;
 use App\Http\Controllers\Controller;
 use App\Models\ManajemenVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ManajemenVisitExport;
 use OpenApi\Attributes as OA;
 
 class ManajemenVisitController extends Controller
@@ -20,7 +20,7 @@ class ManajemenVisitController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Successful operation'),
@@ -30,20 +30,21 @@ class ManajemenVisitController extends Controller
     public function index(Request $request)
     {
         $query = ManajemenVisit::with(['user', 'status']);
-        
-        if ($request->has('user_id') && !empty($request->query('user_id'))) {
+
+        if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
         }
 
-        if ($request->has('filter_nama') && !empty($request->query('filter_nama'))) {
-            $query->where('namaClient', 'like', '%' . $request->query('filter_nama') . '%');
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');
         }
 
-        if ($request->has('filter_tanggal') && !empty($request->query('filter_tanggal'))) {
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
             $query->whereDate('created_at', $request->query('filter_tanggal'));
         }
 
         $visits = $query->get();
+
         return response()->json($visits);
     }
 
@@ -65,7 +66,7 @@ class ManajemenVisitController extends Controller
                         new OA\Property(property: 'status_id', type: 'string'),
                         new OA\Property(property: 'kegiatan', type: 'string'),
                         new OA\Property(
-                            property: 'foto[]', 
+                            property: 'foto[]',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Max 3 images (jpeg, png, jpg)'
@@ -100,7 +101,7 @@ class ManajemenVisitController extends Controller
             $paths = [];
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('visit', 'public');
-                $paths[] = 'storage/' . $path;
+                $paths[] = 'storage/'.$path;
             }
             $validated['foto'] = $paths;
         }
@@ -126,6 +127,7 @@ class ManajemenVisitController extends Controller
     public function show($uuid)
     {
         $visit = ManajemenVisit::with(['user', 'status'])->findOrFail($uuid);
+
         return response()->json($visit);
     }
 
@@ -150,7 +152,7 @@ class ManajemenVisitController extends Controller
                         new OA\Property(property: 'status_id', type: 'string'),
                         new OA\Property(property: 'kegiatan', type: 'string'),
                         new OA\Property(
-                            property: 'foto[]', 
+                            property: 'foto[]',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Max 3 images (jpeg, png, jpg). Will replace old images.'
@@ -160,7 +162,7 @@ class ManajemenVisitController extends Controller
                             type: 'string',
                             default: 'PUT',
                             description: 'Spoof method to PUT (optional if handled by controller explicitly)'
-                        )
+                        ),
                     ]
                 )
             )
@@ -199,7 +201,7 @@ class ManajemenVisitController extends Controller
             $paths = [];
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('visit', 'public');
-                $paths[] = 'storage/' . $path;
+                $paths[] = 'storage/'.$path;
             }
             $validated['foto'] = $paths;
         }
@@ -248,14 +250,46 @@ class ManajemenVisitController extends Controller
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date'))
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'File downloaded successfully')
+            new OA\Response(response: 200, description: 'File downloaded successfully'),
         ]
     )]
     public function export(Request $request)
     {
         return Excel::download(new ManajemenVisitExport($request->all()), 'manajemen_visit.xlsx');
+    }
+
+    #[OA\Get(
+        path: '/api/manajemen-visit/user/{userId}',
+        summary: 'Get list of ManajemenVisit by user id',
+        security: [['bearerAuth' => []]],
+        tags: ['Manajemen Visit'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function getByUser(Request $request, $userId)
+    {
+        $query = ManajemenVisit::with(['user', 'status'])->where('user_id', $userId);
+
+        if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');
+        }
+
+        if ($request->has('filter_tanggal') && ! empty($request->query('filter_tanggal'))) {
+            $query->whereDate('created_at', $request->query('filter_tanggal'));
+        }
+
+        $data = $query->get();
+
+        return response()->json($data);
     }
 }
