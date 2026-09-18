@@ -71,6 +71,10 @@ Route::get('/clients', function () {
     return view('clients');
 })->name('clients');
 
+Route::get('/monitoring-lokasi', function () {
+    return view('monitoring_lokasi');
+})->name('monitoring-lokasi');
+
 Route::get('/api-wilayah/{path}', function ($path) {
     $url = 'https://wilayah.id/api/'.$path;
     $response = Http::get($url);

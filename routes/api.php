@@ -31,6 +31,9 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/roles', RoleController::class);
     Route::patch('/users/{id}/password', [UserController::class, 'updatePassword']);
     Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('/users/{id}/location', [UserController::class, 'updateLocation']);
+    Route::get('/users/{id}/location', [UserController::class, 'getLocation']);
+    Route::get('/users-locations', [UserController::class, 'locations']);
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/jenis-kegiatan', JenisKegiatanController::class);
     Route::apiResource('/jenis-pegawai', JenisPegawaiController::class);

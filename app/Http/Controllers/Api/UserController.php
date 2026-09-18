@@ -230,4 +230,82 @@ class UserController extends Controller
             'new_password' => $newPassword,
         ]);
     }
+
+    #[OA\Post(
+        path: '/api/users/{id}/location',
+        summary: 'Update user location',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['latitude', 'longitude'],
+                properties: [
+                    new OA\Property(property: 'latitude', type: 'number', format: 'float'),
+                    new OA\Property(property: 'longitude', type: 'number', format: 'float'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Location updated'),
+            new OA\Response(response: 404, description: 'User not found'),
+            new OA\Response(response: 422, description: 'Validation error'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function updateLocation(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update([
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+        ]);
+
+        return response()->json(['message' => 'Location updated successfully', 'user' => $user]);
+    }
+
+    #[OA\Get(
+        path: '/api/users/{id}/location',
+        summary: 'Get specific user location',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 404, description: 'User not found'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function getLocation($id)
+    {
+        $user = User::select(['id', 'nama', 'latitude', 'longitude', 'username', 'role_id'])->findOrFail($id);
+        return response()->json($user);
+    }
+
+    #[OA\Get(
+        path: '/api/users-locations',
+        summary: 'Get all users locations',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        responses: [
+            new OA\Response(response: 200, description: 'Successful operation'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function locations()
+    {
+        // Get users who have updated their location
+        $users = User::whereNotNull('latitude')->whereNotNull('longitude')->get(['id', 'nama', 'latitude', 'longitude', 'username', 'role_id']);
+        return response()->json($users);
+    }
 }

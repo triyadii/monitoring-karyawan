@@ -62,6 +62,22 @@
 										<!--end:Menu item-->
 
 										<!--begin:Menu item-->
+										<div class="menu-item admin-menu-item" id="menu_monitoring_lokasi">
+											<!--begin:Menu link-->
+											<a class="menu-link {{ request()->is('monitoring-lokasi') ? 'active' : '' }}" href="{{ route('monitoring-lokasi') }}">
+												<span class="menu-icon">
+													<i class="ki-duotone ki-geolocation fs-2">
+														<span class="path1"></span>
+														<span class="path2"></span>
+													</i>
+												</span>
+												<span class="menu-title">Monitoring Lokasi</span>
+											</a>
+											<!--end:Menu link-->
+										</div>
+										<!--end:Menu item-->
+
+										<!--begin:Menu item-->
 										<div class="menu-item aksi-menu-item">
 											<!--begin:Menu link-->
 											<a class="menu-link {{ request()->is('manajemen-aksi') ? 'active' : '' }}" href="{{ route('manajemen-aksi') }}">

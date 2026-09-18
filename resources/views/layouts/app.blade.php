@@ -4341,6 +4341,37 @@ License: For each use you must have a valid license purchased only from above li
 						});
 					});
 				}
+
+				// Auto update location if supported
+				if ("geolocation" in navigator && userDataStr) {
+					const userData = JSON.parse(userDataStr);
+					const token = localStorage.getItem('jwt_token');
+					
+					function sendLocation(position) {
+						fetch(`{{ url('/api/users') }}/${userData.id}/location`, {
+							method: 'POST',
+							headers: {
+								'Authorization': 'Bearer ' + token,
+								'Content-Type': 'application/json',
+								'Accept': 'application/json'
+							},
+							body: JSON.stringify({
+								latitude: position.coords.latitude,
+								longitude: position.coords.longitude
+							})
+						}).catch(err => console.error("Error updating location", err));
+					}
+					
+					// Send location immediately once
+					navigator.geolocation.getCurrentPosition(sendLocation, (err) => console.warn("Geolocation error:", err));
+					
+					// Also watch for changes
+					navigator.geolocation.watchPosition(sendLocation, (err) => console.warn("Geolocation watch error:", err), {
+						enableHighAccuracy: true,
+						timeout: 30000,
+						maximumAge: 0
+					});
+				}
 			});
 		</script>
 		@stack('scripts')
