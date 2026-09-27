@@ -71,6 +71,9 @@
                                                 },
                                                 "status": {
                                                     "type": "integer"
+                                                },
+                                                "is_password_expired": {
+                                                    "type": "boolean"
                                                 }
                                             },
                                             "type": "object"
@@ -1492,6 +1495,14 @@
                                     "status_id": {
                                         "description": "UUID of Master Status Client",
                                         "type": "string"
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -1548,12 +1559,12 @@
                     }
                 ]
             },
-            "put": {
+            "post": {
                 "tags": [
                     "Manajemen Canvasing"
                 ],
                 "summary": "Update canvasing",
-                "operationId": "0808bf99890e19e7224c9fed9282cbc7",
+                "operationId": "2fc5743b3b4e492c64f6d40b21ebddd1",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -1587,6 +1598,14 @@
                                     },
                                     "status_id": {
                                         "type": "string"
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -2829,6 +2848,175 @@
                 ]
             }
         },
+        "/api/penugasans": {
+            "get": {
+                "tags": [
+                    "Penugasan"
+                ],
+                "summary": "Get all penugasans",
+                "operationId": "f244c661e2c717493bad335050639590",
+                "responses": {
+                    "200": {
+                        "description": "List of all penugasans"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Penugasan"
+                ],
+                "summary": "Create a new penugasan (assign task)",
+                "operationId": "981344cdfcc27b730f3ec917cd28d95b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "assignable_type",
+                                    "assignable_id",
+                                    "user_id"
+                                ],
+                                "properties": {
+                                    "assignable_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "HO",
+                                            "Canvasing"
+                                        ]
+                                    },
+                                    "assignable_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "user_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "catatan": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Penugasan created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Assignable record not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/penugasans/{uuid}/status": {
+            "post": {
+                "tags": [
+                    "Penugasan"
+                ],
+                "summary": "Update status of a penugasan",
+                "operationId": "530356c2abbe0bc6f011174b218da033",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "status_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "nullable": true
+                                    },
+                                    "foto[]": {
+                                        "description": "Max 3 images (jpeg, png, jpg)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated successfully"
+                    },
+                    "404": {
+                        "description": "Penugasan not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/penugasans/{uuid}": {
+            "delete": {
+                "tags": [
+                    "Penugasan"
+                ],
+                "summary": "Delete (cancel) a penugasan",
+                "operationId": "3e7a5c52279f9a9eaf15b039d0abdbba",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Penugasan deleted"
+                    },
+                    "404": {
+                        "description": "Penugasan not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/roles": {
             "get": {
                 "tags": [
@@ -3625,6 +3813,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Penugasan",
+            "description": "API Endpoints for Tugas Kunjungan (Assignments)"
+        },
         {
             "name": "Authentication",
             "description": "Authentication"

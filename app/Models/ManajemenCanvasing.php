@@ -22,6 +22,11 @@ class ManajemenCanvasing extends Model
         'alamat',
         'status_id',
         'user_id',
+        'foto',
+    ];
+
+    protected $casts = [
+        'foto' => 'array',
     ];
 
     public function user()
@@ -32,5 +37,10 @@ class ManajemenCanvasing extends Model
     public function status()
     {
         return $this->belongsTo(MasterStatusClient::class, 'status_id');
+    }
+
+    public function penugasans()
+    {
+        return $this->morphMany(Penugasan::class, 'assignable');
     }
 }

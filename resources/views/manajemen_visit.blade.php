@@ -10,8 +10,20 @@
             <!-- Cards will be injected here via JS -->
         </div>
 
-        <div id="main_table_container">
-            <div class="card card-flush">
+        <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#tab_visit">Data Visit</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab_penugasan">Tugas Kunjungan</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- TAB VISIT -->
+            <div class="tab-pane fade show active" id="tab_visit" role="tabpanel">
+                <div id="main_table_container">
+                    <div class="card card-flush">
                 <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                     <div class="card-title d-flex align-items-center gap-3">
                         
@@ -59,6 +71,53 @@
                 </div>
             </div>
         </div>
+    </div>
+    <!-- END TAB VISIT -->
+
+    <!-- TAB PENUGASAN -->
+    <div class="tab-pane fade" id="tab_penugasan" role="tabpanel">
+        <div class="card card-flush">
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <div class="card-title d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center position-relative my-1">
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                            <span class="path1"></span><span class="path2"></span>
+                        </i>
+                        <input type="text" data-kt-penugasan-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari Tugas..." />
+                    </div>
+                    <div class="d-flex align-items-center gap-2 my-1 ms-3">
+                        <select id="filter_status_penugasan" class="form-select form-select-solid w-150px">
+                            <option value="">Semua Status</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="applyFiltersPenugasan()">Filter</button>
+                        <button type="button" class="btn btn-light btn-sm" onclick="resetFiltersPenugasan()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body pt-0">
+                <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_penugasans" style="width: 100%">
+                    <thead>
+                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                            <th class="min-w-100px">Sumber</th>
+                            <th class="min-w-125px">Nama Client</th>
+                            <th class="min-w-125px">Nomor Telepon</th>
+                            <th class="min-w-150px">Alamat</th>
+                            <th class="min-w-125px">Ditugaskan Oleh</th>
+                            <th class="min-w-100px">Foto</th>
+                            <th class="min-w-100px">Status</th>
+                            <th class="text-end min-w-100px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-semibold text-gray-600">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- END TAB PENUGASAN -->
+</div>
 
     </div>
 </div>
@@ -207,6 +266,124 @@
     </div>
 </div>
 
+<!-- Modal Update Status Penugasan -->
+<div class="modal fade" id="kt_modal_update_status" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="fw-bold">Update Status Tugas</h2>
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                <form id="kt_modal_update_status_form" class="form" action="#">
+                    <input type="hidden" id="penugasan_uuid" name="uuid" value="" />
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="required fs-6 fw-semibold form-label mb-2">Status Baru</label>
+                        <select name="status" id="penugasan_status" class="form-select form-select-solid" required>
+                            <option value="">Pending</option>
+                            <!-- Options loaded dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="fs-6 fw-semibold form-label mb-2">Foto (Max 3, format: jpeg, png, jpg)</label>
+                        <input type="file" class="form-control form-control-solid" id="penugasan_foto" name="foto[]" accept="image/*" multiple />
+                        <div class="form-text">Pilih maksimal 3 foto. Memilih foto baru akan menimpa foto yang ada sebelumnya.</div>
+                    </div>
+
+                    <div class="text-center pt-15">
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" id="kt_modal_update_status_submit" class="btn btn-primary">
+                            <span class="indicator-label">Update</span>
+                            <span class="indicator-progress">Please wait... 
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Penugasan -->
+<div class="modal fade" id="kt_modal_detail_penugasan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="fw-bold">Detail Tugas Kunjungan</h2>
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                <div class="d-flex flex-column gap-5">
+                    <div class="d-flex flex-column mb-5">
+                        <h4 class="text-gray-900 mb-1">Informasi Client</h4>
+                        <div class="separator mb-3"></div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Sumber</div>
+                            <div class="col-sm-8" id="detail_penugasan_sumber"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Nama Client</div>
+                            <div class="col-sm-8 text-gray-800 fw-bold" id="detail_penugasan_nama_client"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Nomor Telepon</div>
+                            <div class="col-sm-8 text-gray-800" id="detail_penugasan_nomor_telepon"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Alamat</div>
+                            <div class="col-sm-8 text-gray-800" id="detail_penugasan_alamat"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column mb-5">
+                        <h4 class="text-gray-900 mb-1">Informasi Penugasan</h4>
+                        <div class="separator mb-3"></div>
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Ditugaskan Oleh</div>
+                            <div class="col-sm-8 text-gray-800 d-flex align-items-center">
+                                <div class="symbol symbol-35px symbol-circle me-3">
+                                    <div class="symbol-label bg-light-primary text-primary fw-bold fs-6" id="detail_penugasan_assigner_initial"></div>
+                                </div>
+                                <span id="detail_penugasan_assigner" class="fw-semibold"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Catatan Penugasan</div>
+                            <div class="col-sm-8 text-gray-800 bg-light rounded p-3" id="detail_penugasan_catatan" style="min-height: 60px; white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Status Saat Ini</div>
+                            <div class="col-sm-8" id="detail_penugasan_status"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column mb-5">
+                        <h4 class="text-gray-900 mb-1">Lampiran Foto (Tugas Kunjungan)</h4>
+                        <div class="separator mb-3"></div>
+                        <div id="detail_penugasan_foto" class="d-flex flex-wrap gap-4 mt-2">
+                            <!-- Foto di-generate dari JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer flex-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('jwt_token');
@@ -228,9 +405,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const role = ud.role_name || (ud.role && ud.role.nama_role) || '';
             const roleLower = role.toLowerCase();
             
-            if (roleLower === 'channeling' || roleLower === 'superadmin' || roleLower === 'leader') {
-                hasCrudAccess = true;
-            }
+            // Semua user sekarang bisa create/edit visit mereka sendiri
+            hasCrudAccess = true;
+            
             if (roleLower === 'superadmin' || roleLower === 'leader') {
                 isSuperAdminOrLeader = true;
             }
@@ -296,6 +473,30 @@ document.addEventListener('DOMContentLoaded', function() {
             option.value = status.id;
             option.text = status.nama_status;
             select.appendChild(option);
+        });
+    });
+
+    // Load Master Status Client for dropdown
+    fetch(`${apiUrl}/master-status-clients`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const selectFilter = document.getElementById('filter_status_penugasan');
+        const selectStatus = document.getElementById('penugasan_status');
+        data.forEach(status => {
+            if(selectFilter) {
+                const optFilter = document.createElement('option');
+                optFilter.value = status.id;
+                optFilter.text = status.nama_status;
+                selectFilter.appendChild(optFilter);
+            }
+            if(selectStatus) {
+                const optStatus = document.createElement('option');
+                optStatus.value = status.id;
+                optStatus.text = status.nama_status;
+                selectStatus.appendChild(optStatus);
+            }
         });
     });
 
@@ -600,7 +801,205 @@ window.showAllMembersData = function(el) {
     $('.member-card').removeClass('border-primary bg-light-primary');
     if (el) $(el).addClass('border-primary bg-light-primary');
     $('#kt_table_visits').DataTable().ajax.url(`${apiUrl}/manajemen-visit`).load();
+    $('#kt_table_penugasans').DataTable().ajax.reload();
 }
+
+    // --- TAB PENUGASAN LOGIC ---
+    var dtPenugasan = $('#kt_table_penugasans').DataTable({
+        ajax: {
+            url: `${apiUrl}/penugasans`,
+            type: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` },
+            data: function(d) {
+                if (isSuperAdminOrLeader) {
+                    if (selectedUserId) d.user_id = selectedUserId;
+                } else {
+                    d.user_id = currentUserId; // Hanya lihat tugas sendiri jika bukan admin
+                }
+                const filterStatus = document.getElementById('filter_status_penugasan');
+                if (filterStatus && filterStatus.value) {
+                    d.status_id = filterStatus.value;
+                }
+            },
+            dataSrc: ''
+        },
+        columns: [
+            { data: 'sumber_tipe', render: function(data) {
+                let badgeClass = data === 'ManajemenCanvasing' ? 'badge-light-primary' : 'badge-light-success';
+                let label = data === 'ManajemenCanvasing' ? 'Canvasing' : 'HO';
+                return `<span class="badge ${badgeClass}">${label}</span>`;
+            }},
+            { data: 'assignable.namaClient', defaultContent: '-' },
+            { data: 'assignable.nomorTelepon', defaultContent: '-' },
+            { data: 'assignable.alamat', defaultContent: '-', render: function(data) {
+                return data && data.length > 50 ? data.substr(0, 50) + '...' : (data || '-');
+            }},
+            { data: 'assigner', defaultContent: '-', render: function(data) {
+                return data ? data.nama : '-';
+            }},
+            { data: 'foto', orderable: false, searchable: false, className: 'text-center', render: function(data, type, row) {
+                if (data && data.length > 0) {
+                    return `<a href="{{ env('APP_URL') }}/storage/${data[0]}" target="_blank">
+                                <div class="symbol symbol-50px">
+                                    <img src="{{ env('APP_URL') }}/storage/${data[0]}" alt="foto" style="object-fit: cover; border-radius: 4px;" />
+                                </div>
+                            </a>
+                            ${data.length > 1 ? '<span class="badge badge-light-primary ms-1">+' + (data.length - 1) + '</span>' : ''}`;
+                }
+                return '<span class="text-muted fs-8">No Photo</span>';
+            }},
+            { data: 'status', defaultContent: 'pending', render: function(data) {
+                if (!data) return `<span class="badge badge-light-warning">Pending</span>`;
+                return `<span class="badge badge-light-primary">${data.nama_status}</span>`;
+            }},
+            { data: 'uuid', orderable: false, render: function(data, type, row) {
+                let actions = `
+                    <button class="btn btn-icon btn-sm btn-light-info me-2" onclick='showDetailPenugasan(${JSON.stringify(row).replace(/'/g, "&apos;")})' title="Detail">
+                        <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                    </button>`;
+                
+                let currentStatusId = row.status_id ? row.status_id : '';
+                actions += `
+                    <button class="btn btn-icon btn-sm btn-light-primary me-2" onclick="editStatusPenugasan('${data}', '${currentStatusId}')" title="Update Status">
+                        <i class="ki-duotone ki-pencil fs-3"><span class="path1"></span><span class="path2"></span></i>
+                    </button>`;
+                    
+                if (isSuperAdminOrLeader) {
+                    actions += `
+                        <button class="btn btn-icon btn-sm btn-light-danger" onclick="deletePenugasan('${data}')" title="Hapus Penugasan">
+                            <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                        </button>`;
+                }
+                
+                return actions;
+            }}
+        ]
+    });
+
+    $('[data-kt-penugasan-table-filter="search"]').on('keyup', function () {
+        dtPenugasan.search(this.value).draw();
+    });
+
+    document.getElementById('kt_modal_update_status_form')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const submitButton = document.getElementById('kt_modal_update_status_submit');
+        submitButton.setAttribute('data-kt-indicator', 'on');
+        submitButton.disabled = true;
+
+        const uuid = document.getElementById('penugasan_uuid').value;
+        const status = document.getElementById('penugasan_status').value;
+
+        let formData = new FormData();
+        const statusVal = document.getElementById('penugasan_status').value;
+        if (statusVal) {
+            formData.append('status_id', statusVal);
+        }
+        
+        let fotoFiles = document.getElementById('penugasan_foto').files;
+        if (fotoFiles.length > 0) {
+            for (let i = 0; i < fotoFiles.length; i++) {
+                formData.append('foto[]', fotoFiles[i]);
+            }
+        }
+        
+        fetch(`${apiUrl}/penugasans/${uuid}/status`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => {
+            submitButton.removeAttribute('data-kt-indicator');
+            submitButton.disabled = false;
+            if (response.ok) {
+                $('#kt_modal_update_status').modal('hide');
+                dtPenugasan.ajax.reload();
+                Swal.fire({text: "Status berhasil diupdate!", icon: "success", buttonsStyling: false, confirmButtonText: "Ok", customClass: { confirmButton: "btn btn-primary" }});
+            } else {
+                Swal.fire({text: "Terjadi kesalahan.", icon: "error", buttonsStyling: false, confirmButtonText: "Ok", customClass: { confirmButton: "btn btn-danger" }});
+            }
+        });
+    });
+
+    window.editStatusPenugasan = function(uuid, status) {
+        document.getElementById('penugasan_uuid').value = uuid;
+        document.getElementById('penugasan_status').value = status;
+        document.getElementById('penugasan_foto').value = '';
+        $('#kt_modal_update_status').modal('show');
+    }
+
+    window.deletePenugasan = function(uuid) {
+        Swal.fire({
+            text: "Hapus (batalkan) penugasan ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Ya, Hapus!",
+            cancelButtonText: "Batal",
+            customClass: { confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light" }
+        }).then(function (result) {
+            if (result.value) {
+                fetch(`${apiUrl}/penugasans/${uuid}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        dtPenugasan.ajax.reload();
+                        Swal.fire("Berhasil", "Penugasan dihapus.", "success");
+                    } else {
+                        Swal.fire("Gagal", "Gagal menghapus data.", "error");
+                    }
+                });
+            }
+        });
+    }
+
+    window.showDetailPenugasan = function(penugasan) {
+        document.getElementById('detail_penugasan_sumber').innerText = (penugasan.sumber_tipe === 'ManajemenCanvasing') ? 'Canvasing' : 'HO';
+        
+        let clientData = penugasan.assignable || {};
+        document.getElementById('detail_penugasan_nama_client').innerText = clientData.namaClient || '-';
+        document.getElementById('detail_penugasan_nomor_telepon').innerText = clientData.nomorTelepon || '-';
+        document.getElementById('detail_penugasan_alamat').innerText = clientData.alamat || '-';
+        
+        let assignerName = penugasan.assigner ? penugasan.assigner.nama : '-';
+        document.getElementById('detail_penugasan_assigner').innerText = assignerName;
+        document.getElementById('detail_penugasan_assigner_initial').innerText = assignerName !== '-' ? assignerName.charAt(0).toUpperCase() : '?';
+        
+        document.getElementById('detail_penugasan_catatan').innerText = penugasan.catatan || '-';
+        
+        document.getElementById('detail_penugasan_status').innerHTML = penugasan.status 
+            ? `<span class="badge badge-light-primary">${penugasan.status.nama_status}</span>` 
+            : `<span class="badge badge-light-warning">Pending</span>`;
+            
+        const fotoContainer = document.getElementById('detail_penugasan_foto');
+        fotoContainer.innerHTML = '';
+        if (penugasan.foto && penugasan.foto.length > 0) {
+            penugasan.foto.forEach(img => {
+                const a = document.createElement('a');
+                a.href = `${baseUrl}/storage/${img}`;
+                a.target = '_blank';
+                a.className = 'd-block border border-gray-300 rounded overflow-hidden mb-2';
+                a.innerHTML = `<img src="${baseUrl}/storage/${img}" alt="Foto" class="w-100px h-100px" style="object-fit:cover;" />`;
+                fotoContainer.appendChild(a);
+            });
+        } else {
+            fotoContainer.innerHTML = '<span class="text-gray-500">Tidak ada lampiran</span>';
+        }
+    
+        $('#kt_modal_detail_penugasan').modal('show');
+    }
+
+    window.applyFiltersPenugasan = function() {
+        dtPenugasan.ajax.reload();
+    }
+
+    window.resetFiltersPenugasan = function() {
+        document.getElementById('filter_status_penugasan').value = '';
+        dtPenugasan.ajax.reload();
+    }
 });
 </script>
 @endsection

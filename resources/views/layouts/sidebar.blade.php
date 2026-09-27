@@ -119,8 +119,6 @@
 													</i>
 												</span>
 												<span class="menu-title">Manajemen Visit</span>
-											</a>
-											<!--end:Menu link-->
 										</div>
 										<!--end:Menu item-->
 										<!--begin:Menu item-->

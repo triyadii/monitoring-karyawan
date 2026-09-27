@@ -63,6 +63,12 @@ class ManajemenCanvasingController extends Controller
                         new OA\Property(property: 'nomorTelepon', type: 'string'),
                         new OA\Property(property: 'alamat', type: 'string'),
                         new OA\Property(property: 'status_id', type: 'string', description: 'UUID of Master Status Client'),
+                        new OA\Property(
+                            property: 'foto[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Max 3 images (jpeg, png, jpg)'
+                        ),
                     ]
                 )
             )
@@ -80,7 +86,17 @@ class ManajemenCanvasingController extends Controller
             'nomorTelepon' => 'required|string|max:50',
             'alamat' => 'required|string',
             'status_id' => 'required|uuid|exists:master_status_clients,id',
+            'foto' => 'nullable|array|max:3',
+            'foto.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $fotoPaths = [];
+            foreach ($request->file('foto') as $file) {
+                $fotoPaths[] = $file->store('canvasing', 'public');
+            }
+            $validated['foto'] = $fotoPaths;
+        }
 
         if ($request->user()) {
             $validated['user_id'] = $request->user()->id;
@@ -111,7 +127,7 @@ class ManajemenCanvasingController extends Controller
         return response()->json($canvasing);
     }
 
-    #[OA\Put(
+    #[OA\Post(
         path: '/api/manajemen-canvasing/{uuid}',
         summary: 'Update canvasing',
         security: [['bearerAuth' => []]],
@@ -130,6 +146,12 @@ class ManajemenCanvasingController extends Controller
                         new OA\Property(property: 'nomorTelepon', type: 'string'),
                         new OA\Property(property: 'alamat', type: 'string'),
                         new OA\Property(property: 'status_id', type: 'string'),
+                        new OA\Property(
+                            property: 'foto[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Max 3 images (jpeg, png, jpg)'
+                        ),
                     ]
                 )
             )
@@ -149,7 +171,30 @@ class ManajemenCanvasingController extends Controller
             'nomorTelepon' => 'required|string|max:50',
             'alamat' => 'required|string',
             'status_id' => 'required|uuid|exists:master_status_clients,id',
+            'foto' => 'nullable|array|max:3',
+            'foto.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        if ($request->hasFile('foto')) {
+            // Delete old photos
+            if ($canvasing->foto && is_array($canvasing->foto)) {
+                foreach ($canvasing->foto as $oldFoto) {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldFoto)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFoto);
+                    }
+                }
+            } elseif ($canvasing->foto && is_string($canvasing->foto)) {
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($canvasing->foto)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($canvasing->foto);
+                }
+            }
+
+            $fotoPaths = [];
+            foreach ($request->file('foto') as $file) {
+                $fotoPaths[] = $file->store('canvasing', 'public');
+            }
+            $validated['foto'] = $fotoPaths;
+        }
 
         $canvasing->update($validated);
 

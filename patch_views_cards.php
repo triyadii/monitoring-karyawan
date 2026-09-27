@@ -5,20 +5,20 @@ $views = [
     'manajemen_visit' => ['tableSuffix' => 'visits', 'endpoint' => 'manajemen-visit', 'type' => 'visit'],
     'manajemen_canvasing' => ['tableSuffix' => 'canvasings', 'endpoint' => 'manajemen-canvasing', 'type' => 'canvasing'],
     'manajemen_ho' => ['tableSuffix' => 'hos', 'endpoint' => 'manajemen-ho', 'type' => 'ho'],
-    'manajemen_ppd' => ['tableSuffix' => 'ppds', 'endpoint' => 'manajemen-ppd', 'type' => 'ppd']
+    'manajemen_ppd' => ['tableSuffix' => 'ppds', 'endpoint' => 'manajemen-ppd', 'type' => 'ppd'],
 ];
 
 foreach ($views as $view => $config) {
     $tableSuffix = $config['tableSuffix'];
     $endpoint = $config['endpoint'];
     $type = $config['type'];
-    
+
     $path = "/var/www/html/monitoring-karyawan/resources/views/{$view}.blade.php";
     $content = file_get_contents($path);
 
     // 1. Replace anggota_list_container with member_stats_cards
     $searchHtml = '/<div id="anggota_list_container" style="display: none;">.*?<\/div>\s*<\/div>\s*<\/div>/s';
-    $replaceHtml = <<<HTML
+    $replaceHtml = <<<'HTML'
 <div class="row g-5 g-xl-8 mb-5" id="member_stats_cards" style="display: none;">
             <!-- Cards will be injected here via JS -->
         </div>
@@ -30,8 +30,8 @@ HTML;
     $content = preg_replace($searchBackBtn, '', $content);
 
     // 3. Replace JS block for isSuperAdminOrLeader
-    $searchJs = '/if \(isSuperAdminOrLeader\) \{\s*document\.getElementById\(\'main_table_container\'\)\.style\.display = \'none\';\s*document\.getElementById\(\'anggota_list_container\'\)\.style\.display = \'block\';\s*anggotaDatatable = \$\(\'#kt_table_anggota\'\)\.DataTable\(\{\s*ajax: \{\s*url: `\$\{apiUrl\}\/member-stats\/' . $type . '`,\s*type: \'GET\',\s*headers: \{ \'Authorization\': `Bearer \$\{token\}` \},\s*dataSrc: \'\'\s*\},.*?\s*\}\);\s*\} else \{/s';
-    
+    $searchJs = '/if \(isSuperAdminOrLeader\) \{\s*document\.getElementById\(\'main_table_container\'\)\.style\.display = \'none\';\s*document\.getElementById\(\'anggota_list_container\'\)\.style\.display = \'block\';\s*anggotaDatatable = \$\(\'#kt_table_anggota\'\)\.DataTable\(\{\s*ajax: \{\s*url: `\$\{apiUrl\}\/member-stats\/'.$type.'`,\s*type: \'GET\',\s*headers: \{ \'Authorization\': `Bearer \$\{token\}` \},\s*dataSrc: \'\'\s*\},.*?\s*\}\);\s*\} else \{/s';
+
     $replaceJs = <<<JS
 if (isSuperAdminOrLeader) {
         document.getElementById('member_stats_cards').style.display = 'flex';
@@ -80,7 +80,7 @@ JS;
 
     // 4. Update viewMemberData and remove showMembersList
     $searchViewMemberData = '/window\.viewMemberData = function\(userId\) \{.*?\}\s*window\.showMembersList = function\(\) \{.*?\}/s';
-    
+
     $replaceViewMemberData = <<<JS
 window.viewMemberData = function(userId, el) {
     selectedUserId = userId;
@@ -101,5 +101,3 @@ JS;
     file_put_contents($path, $content);
     echo "Patched {$view}.blade.php\n";
 }
-
-?>

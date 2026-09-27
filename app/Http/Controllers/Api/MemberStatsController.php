@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 class MemberStatsController extends Controller
@@ -63,7 +64,7 @@ class MemberStatsController extends Controller
         $members = $query->withCount($relationCount)->get();
 
         $result = $members->map(function ($user) use ($relationCount) {
-            $countKey = \Illuminate\Support\Str::snake($relationCount).'_count';
+            $countKey = Str::snake($relationCount).'_count';
 
             return [
                 'id' => $user->id,

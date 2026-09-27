@@ -27,7 +27,7 @@ class ManajemenSeeder extends Seeder
         ManajemenVisit::query()->delete();
 
         // Ambil user dengan role selain Leader dan superadmin
-        $users = User::whereHas('role', function($q) {
+        $users = User::whereHas('role', function ($q) {
             $q->whereNotIn('nama_role', ['superadmin', 'Leader']);
         })->get();
 
@@ -40,7 +40,7 @@ class ManajemenSeeder extends Seeder
         }
 
         $status = MasterStatusClient::first();
-        if (!$status) {
+        if (! $status) {
             $status = MasterStatusClient::create([
                 'namaStatus' => 'Status Dummy',
             ]);
@@ -53,37 +53,37 @@ class ManajemenSeeder extends Seeder
                 // Manajemen Aksi
                 ManajemenAksi::create([
                     'user_id' => $user->id,
-                    'idAksi' => 'AKS-' . strtoupper(Str::random(4)) . '-' . $i,
-                    'namaAksi' => 'Aksi User ' . $user->nama . ' ' . $i,
-                    'kegiatan' => 'Kegiatan Aksi ' . $i,
+                    'idAksi' => 'AKS-'.strtoupper(Str::random(4)).'-'.$i,
+                    'namaAksi' => 'Aksi User '.$user->nama.' '.$i,
+                    'kegiatan' => 'Kegiatan Aksi '.$i,
                     'status' => 1,
                 ]);
 
                 // Manajemen Canvasing
                 ManajemenCanvasing::create([
                     'user_id' => $user->id,
-                    'namaClient' => 'Client Canvasing ' . $user->nama . ' ' . $i,
-                    'nomorTelepon' => '0812345678' . $i,
-                    'alamat' => 'Alamat Canvasing ' . $i,
+                    'namaClient' => 'Client Canvasing '.$user->nama.' '.$i,
+                    'nomorTelepon' => '0812345678'.$i,
+                    'alamat' => 'Alamat Canvasing '.$i,
                     'status_id' => $status->id,
                 ]);
 
                 // Manajemen HO
                 ManajemenHo::create([
                     'user_id' => $user->id,
-                    'namaClient' => 'Client HO ' . $user->nama . ' ' . $i,
-                    'nomorTelepon' => '0812345678' . $i,
-                    'alamat' => 'Alamat HO ' . $i,
+                    'namaClient' => 'Client HO '.$user->nama.' '.$i,
+                    'nomorTelepon' => '0812345678'.$i,
+                    'alamat' => 'Alamat HO '.$i,
                     'status_id' => $status->id,
                 ]);
 
                 // Manajemen PPD
                 ManajemenPpd::create([
                     'user_id' => $user->id,
-                    'namaClient' => 'Client PPD ' . $user->nama . ' ' . $i,
-                    'nomorTelepon' => '0812345678' . $i,
-                    'alamat' => 'Alamat PPD ' . $i,
-                    'nomorKontrak' => 'KONTRAK-' . strtoupper(Str::random(4)) . '-' . $i,
+                    'namaClient' => 'Client PPD '.$user->nama.' '.$i,
+                    'nomorTelepon' => '0812345678'.$i,
+                    'alamat' => 'Alamat PPD '.$i,
+                    'nomorKontrak' => 'KONTRAK-'.strtoupper(Str::random(4)).'-'.$i,
                     'tenor' => '12 Bulan',
                     'angsuran' => '1000000',
                     'merk' => 'Honda',
@@ -96,10 +96,10 @@ class ManajemenSeeder extends Seeder
                 // Manajemen Visit
                 ManajemenVisit::create([
                     'user_id' => $user->id,
-                    'namaClient' => 'Client Visit ' . $user->nama . ' ' . $i,
-                    'nomorTelepon' => '0812345678' . $i,
-                    'alamat' => 'Alamat Visit ' . $i,
-                    'kegiatan' => 'Kegiatan Visit ' . $i,
+                    'namaClient' => 'Client Visit '.$user->nama.' '.$i,
+                    'nomorTelepon' => '0812345678'.$i,
+                    'alamat' => 'Alamat Visit '.$i,
+                    'kegiatan' => 'Kegiatan Visit '.$i,
                     'status_id' => $status->id,
                 ]);
             }

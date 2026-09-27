@@ -175,6 +175,50 @@
             </div>
         </div>
     </div>
+    </div>
+</div>
+
+<!-- Modal Assign Task -->
+<div class="modal fade" id="kt_modal_assign_task" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="fw-bold">Assign Tugas Kunjungan</h2>
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                <form id="kt_modal_assign_task_form" class="form" action="#">
+                    <input type="hidden" id="assign_type" name="assignable_type" value="HO" />
+                    <input type="hidden" id="assign_id" name="assignable_id" value="" />
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="required fs-6 fw-semibold form-label mb-2">Pilih Petugas</label>
+                        <select name="user_id" id="assign_user_id" class="form-select form-select-solid" required>
+                            <option value="">Pilih Petugas...</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="fs-6 fw-semibold form-label mb-2">Catatan</label>
+                        <textarea class="form-control form-control-solid" rows="3" placeholder="Opsional" name="catatan" id="assign_catatan"></textarea>
+                    </div>
+
+                    <div class="text-center pt-15">
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" id="kt_modal_assign_task_submit" class="btn btn-primary">
+                            <span class="indicator-label">Assign</span>
+                            <span class="indicator-progress">Please wait... 
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -268,6 +312,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Load Users for Assign Dropdown
+    if (isSuperAdminOrLeader) {
+        fetch(`${apiUrl}/users`, { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('assign_user_id');
+            const users = Array.isArray(data) ? data : (data.data || []);
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.text = user.nama;
+                select.appendChild(option);
+            });
+        }).catch(e => console.error("Could not load users for assign dropdown"));
+    }
+
     // Initialize DataTable
     var datatable = $('#kt_table_hos').DataTable({
         ajax: {
@@ -303,6 +365,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
                     </button>`;
                 
+                if (isSuperAdminOrLeader) {
+                    actions += `
+                        <button class="btn btn-icon btn-sm btn-light-warning me-2" onclick="assignTask('HO', '${data}')" title="Assign Petugas">
+                            <i class="ki-duotone ki-user-tick fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                        </button>`;
+                }
+
                 if (hasCrudAccess) {
                     actions += `
                         <button class="btn btn-icon btn-sm btn-light-primary me-2" onclick='editHO(${JSON.stringify(row).replace(/'/g, "&apos;")})' title="Edit">
@@ -467,6 +536,54 @@ window.showDetailHO = function(ho) {
 
     $('#kt_modal_detail_ho').modal('show');
 }
+
+window.assignTask = function(type, id) {
+    document.getElementById('kt_modal_assign_task_form').reset();
+    document.getElementById('assign_type').value = type;
+    document.getElementById('assign_id').value = id;
+    $('#kt_modal_assign_task').modal('show');
+}
+
+document.getElementById('kt_modal_assign_task_form')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const token = localStorage.getItem('jwt_token');
+    const apiUrl = '{{ env("APP_URL") }}' + '/api';
+    const submitBtn = document.getElementById('kt_modal_assign_task_submit');
+    submitBtn.setAttribute('data-kt-indicator', 'on');
+    submitBtn.disabled = true;
+
+    fetch(`${apiUrl}/penugasans`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            assignable_type: document.getElementById('assign_type').value,
+            assignable_id: document.getElementById('assign_id').value,
+            user_id: document.getElementById('assign_user_id').value,
+            catatan: document.getElementById('assign_catatan').value
+        })
+    })
+    .then(async response => {
+        submitBtn.removeAttribute('data-kt-indicator');
+        submitBtn.disabled = false;
+        
+        if (response.ok) {
+            $('#kt_modal_assign_task').modal('hide');
+            Swal.fire('Berhasil', 'Tugas berhasil di-assign ke petugas.', 'success');
+        } else {
+            const err = await response.json();
+            Swal.fire('Gagal', err.message || 'Terjadi kesalahan sistem.', 'error');
+        }
+    }).catch(e => {
+        submitBtn.removeAttribute('data-kt-indicator');
+        submitBtn.disabled = false;
+        console.error(e);
+        Swal.fire('Error', 'Kesalahan koneksi.', 'error');
+    });
+});
 
 window.applyFilters = function() {
     $('#kt_table_hos').DataTable().ajax.reload();

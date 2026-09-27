@@ -48,6 +48,7 @@
                                 <th class="min-w-200px">Alamat</th>
                                 <th class="min-w-125px">Dibuat Oleh</th>
                                 <th class="min-w-100px">Status</th>
+                                <th class="min-w-100px text-center">Foto</th>
                                 <th class="text-end min-w-100px">Actions</th>
                             </tr>
                         </thead>
@@ -108,6 +109,14 @@
                         </select>
                     </div>
 
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="d-flex align-items-center fs-6 fw-semibold form-label mb-2">
+                            <span>Foto Canvasing (Max 3, format: jpeg, png, jpg)</span>
+                        </label>
+                        <input type="file" class="form-control form-control-solid" id="foto" name="foto[]" accept="image/*" multiple />
+                        <div class="form-text">Pilih maksimal 3 foto. Memilih foto baru akan menimpa foto yang ada sebelumnya.</div>
+                    </div>
+
                     <div class="text-center pt-15">
                         <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" id="kt_modal_add_canvasing_submit" class="btn btn-primary">
@@ -152,6 +161,10 @@
                             <div class="col-sm-4 text-gray-500 fw-bold">Status</div>
                             <div class="col-sm-8" id="detail_status"></div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-gray-500 fw-bold">Foto</div>
+                            <div class="col-sm-8 d-flex flex-wrap gap-4 mt-2" id="detail_foto"></div>
+                        </div>
                         <div class="row mb-3 align-items-center">
                             <div class="col-sm-4 text-gray-500 fw-bold">Dibuat Oleh</div>
                             <div class="col-sm-8 text-gray-800 d-flex align-items-center">
@@ -172,6 +185,49 @@
             </div>
             <div class="modal-footer flex-center">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Assign Task -->
+<div class="modal fade" id="kt_modal_assign_task" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="fw-bold">Assign Tugas Kunjungan</h2>
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+                <form id="kt_modal_assign_task_form" class="form" action="#">
+                    <input type="hidden" id="assign_type" name="assignable_type" value="Canvasing" />
+                    <input type="hidden" id="assign_id" name="assignable_id" value="" />
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="required fs-6 fw-semibold form-label mb-2">Pilih Petugas</label>
+                        <select name="user_id" id="assign_user_id" class="form-select form-select-solid" required>
+                            <option value="">Pilih Petugas...</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex flex-column mb-7 fv-row">
+                        <label class="fs-6 fw-semibold form-label mb-2">Catatan</label>
+                        <textarea class="form-control form-control-solid" rows="3" placeholder="Opsional" name="catatan" id="assign_catatan"></textarea>
+                    </div>
+
+                    <div class="text-center pt-15">
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" id="kt_modal_assign_task_submit" class="btn btn-primary">
+                            <span class="indicator-label">Assign</span>
+                            <span class="indicator-progress">Please wait... 
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -268,6 +324,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Load Users for Assign Dropdown
+    if (isSuperAdminOrLeader) {
+        fetch(`${apiUrl}/users`, { // Assuming /api/users returns all users
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('assign_user_id');
+            // Depending on response format, it might be data or data.data
+            const users = Array.isArray(data) ? data : (data.data || []);
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.text = user.nama;
+                select.appendChild(option);
+            });
+        }).catch(e => console.error("Could not load users for assign dropdown"));
+    }
+
     // Initialize DataTable
     var datatable = $('#kt_table_canvasings').DataTable({
         ajax: {
@@ -297,12 +372,30 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: 'status', defaultContent: null, render: function(data) {
                 return data ? `<span class="badge badge-light-primary">${data.nama_status}</span>` : '-';
             }},
+            { data: 'foto', orderable: false, searchable: false, className: 'text-center', render: function(data, type, row) {
+                if (data && data.length > 0) {
+                    return `<a href="{{ env('APP_URL') }}/storage/${data[0]}" target="_blank">
+                                <div class="symbol symbol-50px">
+                                    <img src="{{ env('APP_URL') }}/storage/${data[0]}" alt="foto" style="object-fit: cover; border-radius: 4px;" />
+                                </div>
+                            </a>
+                            ${data.length > 1 ? '<span class="badge badge-light-primary ms-1">+' + (data.length - 1) + '</span>' : ''}`;
+                }
+                return '<span class="text-muted fs-8">No Photo</span>';
+            }},
             { data: 'uuid', orderable: false, render: function(data, type, row) {
                 let actions = `
                     <button class="btn btn-icon btn-sm btn-light-info me-2" onclick='showDetailCanvasing(${JSON.stringify(row).replace(/'/g, "&apos;")})' title="Detail">
                         <i class="ki-duotone ki-eye fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
                     </button>`;
                 
+                if (isSuperAdminOrLeader) {
+                    actions += `
+                        <button class="btn btn-icon btn-sm btn-light-warning me-2" onclick="assignTask('Canvasing', '${data}')" title="Assign Petugas">
+                            <i class="ki-duotone ki-user-tick fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                        </button>`;
+                }
+
                 if (hasCrudAccess) {
                     actions += `
                         <button class="btn btn-icon btn-sm btn-light-primary me-2" onclick='editCanvasing(${JSON.stringify(row).replace(/'/g, "&apos;")})' title="Edit">
@@ -332,24 +425,29 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
 
         const uuid = document.getElementById('canvasing_uuid').value;
-        const method = uuid ? 'PUT' : 'POST';
+        const method = 'POST'; // always POST for form-data (create or update)
         let url = uuid ? `${apiUrl}/manajemen-canvasing/${uuid}` : `${apiUrl}/manajemen-canvasing`;
 
-        let data = {
-            namaClient: document.getElementById('namaClient').value,
-            nomorTelepon: document.getElementById('nomorTelepon').value,
-            alamat: document.getElementById('alamat').value,
-            status_id: document.getElementById('status_id').value
-        };
+        let formData = new FormData();
+        formData.append('namaClient', document.getElementById('namaClient').value);
+        formData.append('nomorTelepon', document.getElementById('nomorTelepon').value);
+        formData.append('alamat', document.getElementById('alamat').value);
+        formData.append('status_id', document.getElementById('status_id').value);
+        
+        let fotoFiles = document.getElementById('foto').files;
+        if (fotoFiles.length > 0) {
+            for (let i = 0; i < fotoFiles.length; i++) {
+                formData.append('foto[]', fotoFiles[i]);
+            }
+        }
 
         fetch(url, {
             method: method,
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Accept': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: formData
         })
         .then(response => {
             submitButton.removeAttribute('data-kt-indicator');
@@ -400,6 +498,7 @@ window.editCanvasing = function(canvasing) {
     document.getElementById('nomorTelepon').value = canvasing.nomorTelepon;
     document.getElementById('alamat').value = canvasing.alamat;
     document.getElementById('status_id').value = canvasing.status_id;
+    document.getElementById('foto').value = ""; // clear file input
     
     $('#kt_modal_add_canvasing').modal('show');
 }
@@ -464,9 +563,72 @@ window.showDetailCanvasing = function(canvasing) {
     document.getElementById('detail_status').innerHTML = canvasing.status 
         ? `<span class="badge badge-light-primary">${canvasing.status.nama_status}</span>` 
         : `-`;
+        
+    const fotoContainer = document.getElementById('detail_foto');
+    fotoContainer.innerHTML = '';
+    if (canvasing.foto && canvasing.foto.length > 0) {
+        canvasing.foto.forEach(img => {
+            const a = document.createElement('a');
+            a.href = `{{ env('APP_URL') }}/storage/${img}`;
+            a.target = '_blank';
+            a.className = 'd-block border border-gray-300 rounded overflow-hidden mb-2';
+            a.innerHTML = `<img src="{{ env('APP_URL') }}/storage/${img}" alt="Foto" class="w-100px h-100px" style="object-fit:cover;" />`;
+            fotoContainer.appendChild(a);
+        });
+    } else {
+        fotoContainer.innerHTML = '<span class="text-gray-500">Tidak ada foto</span>';
+    }
 
     $('#kt_modal_detail_canvasing').modal('show');
 }
+
+window.assignTask = function(type, id) {
+    document.getElementById('kt_modal_assign_task_form').reset();
+    document.getElementById('assign_type').value = type;
+    document.getElementById('assign_id').value = id;
+    $('#kt_modal_assign_task').modal('show');
+}
+
+document.getElementById('kt_modal_assign_task_form')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const token = localStorage.getItem('jwt_token');
+    const apiUrl = '{{ env("APP_URL") }}' + '/api';
+    const submitBtn = document.getElementById('kt_modal_assign_task_submit');
+    submitBtn.setAttribute('data-kt-indicator', 'on');
+    submitBtn.disabled = true;
+
+    fetch(`${apiUrl}/penugasans`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            assignable_type: document.getElementById('assign_type').value,
+            assignable_id: document.getElementById('assign_id').value,
+            user_id: document.getElementById('assign_user_id').value,
+            catatan: document.getElementById('assign_catatan').value
+        })
+    })
+    .then(async response => {
+        submitBtn.removeAttribute('data-kt-indicator');
+        submitBtn.disabled = false;
+        
+        if (response.ok) {
+            $('#kt_modal_assign_task').modal('hide');
+            Swal.fire('Berhasil', 'Tugas berhasil di-assign ke petugas.', 'success');
+        } else {
+            const err = await response.json();
+            Swal.fire('Gagal', err.message || 'Terjadi kesalahan sistem.', 'error');
+        }
+    }).catch(e => {
+        submitBtn.removeAttribute('data-kt-indicator');
+        submitBtn.disabled = false;
+        console.error(e);
+        Swal.fire('Error', 'Kesalahan koneksi.', 'error');
+    });
+});
 
 window.applyFilters = function() {
     $('#kt_table_canvasings').DataTable().ajax.reload();

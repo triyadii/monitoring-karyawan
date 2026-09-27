@@ -66,6 +66,7 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['status'] = $validated['status'] ?? 1;
+        $validated['password_updated_at'] = now();
 
         $user = User::create($validated);
 
@@ -133,6 +134,7 @@ class UserController extends Controller
 
         if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
+            $validated['password_updated_at'] = now();
         } else {
             unset($validated['password']);
         }
@@ -197,6 +199,7 @@ class UserController extends Controller
 
         $user->update([
             'password' => Hash::make($validated['password']),
+            'password_updated_at' => now(),
         ]);
 
         return response()->json(['message' => 'Password updated successfully']);
@@ -223,6 +226,7 @@ class UserController extends Controller
 
         $user->update([
             'password' => Hash::make($newPassword),
+            'password_updated_at' => now(),
         ]);
 
         return response()->json([
@@ -289,6 +293,7 @@ class UserController extends Controller
     public function getLocation($id)
     {
         $user = User::select(['id', 'nama', 'latitude', 'longitude', 'username', 'role_id'])->findOrFail($id);
+
         return response()->json($user);
     }
 
@@ -306,6 +311,7 @@ class UserController extends Controller
     {
         // Get users who have updated their location
         $users = User::whereNotNull('latitude')->whereNotNull('longitude')->get(['id', 'nama', 'latitude', 'longitude', 'username', 'role_id']);
+
         return response()->json($users);
     }
 }

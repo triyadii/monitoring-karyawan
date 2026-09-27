@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\MemberStatsController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\WilayahController;
+use App\Http\Middleware\EnsurePasswordIsNotExpired;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,7 +27,7 @@ Route::get('/wilayah/regencies/{province_code}', [WilayahController::class, 'reg
 Route::get('/wilayah/districts/{regency_code}', [WilayahController::class, 'districts']);
 Route::get('/wilayah/villages/{district_code}', [WilayahController::class, 'villages']);
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', EnsurePasswordIsNotExpired::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/roles', RoleController::class);
     Route::patch('/users/{id}/password', [UserController::class, 'updatePassword']);
@@ -59,8 +60,15 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/manajemen-ho', ManajemenHoController::class);
 
     Route::get('/export/manajemen-canvasing', [ManajemenCanvasingController::class, 'export']);
+    Route::post('/manajemen-canvasing/{uuid}', [ManajemenCanvasingController::class, 'update']);
     Route::get('/manajemen-canvasing/user/{userId}', [ManajemenCanvasingController::class, 'getByUser']);
-    Route::apiResource('/manajemen-canvasing', ManajemenCanvasingController::class);
+    Route::apiResource('/manajemen-canvasing', ManajemenCanvasingController::class)->except(['update']);
+    
+    // Penugasan
+    Route::get('/penugasans', [\App\Http\Controllers\Api\PenugasanController::class, 'index']);
+    Route::post('/penugasans', [\App\Http\Controllers\Api\PenugasanController::class, 'store']);
+    Route::post('/penugasans/{uuid}/status', [\App\Http\Controllers\Api\PenugasanController::class, 'updateStatus']);
+    Route::delete('/penugasans/{uuid}', [\App\Http\Controllers\Api\PenugasanController::class, 'destroy']);
     Route::apiResource('/master-status-clients', MasterStatusClientController::class);
     Route::post('/clients/import', [ClientController::class, 'import']);
     Route::post('/clients/bulk-disposisi', [ClientController::class, 'bulkDisposisi']);

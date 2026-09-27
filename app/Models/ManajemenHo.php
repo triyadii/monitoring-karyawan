@@ -33,4 +33,9 @@ class ManajemenHo extends Model
     {
         return $this->belongsTo(MasterStatusClient::class, 'status_id');
     }
+
+    public function penugasans()
+    {
+        return $this->morphMany(Penugasan::class, 'assignable');
+    }
 }

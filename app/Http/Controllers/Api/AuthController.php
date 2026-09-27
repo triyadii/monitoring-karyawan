@@ -33,6 +33,7 @@ class AuthController extends Controller
                             new OA\Property(property: 'username', type: 'string'),
                             new OA\Property(property: 'nama', type: 'string'),
                             new OA\Property(property: 'status', type: 'integer'),
+                            new OA\Property(property: 'is_password_expired', type: 'boolean'),
                         ]),
                         new OA\Property(property: 'authorization', type: 'object', properties: [
                             new OA\Property(property: 'token', type: 'string'),
@@ -87,6 +88,7 @@ class AuthController extends Controller
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'status' => $user->status,
+                'is_password_expired' => ! $user->password_updated_at || $user->password_updated_at->copy()->addDays(30)->isPast(),
             ],
             'authorization' => [
                 'token' => $token,
