@@ -4219,6 +4219,21 @@ License: For each use you must have a valid license purchased only from above li
 					localStorage.removeItem('jwt_token');
 					localStorage.removeItem('user_data');
 					window.location.href = '{{ route('login') }}';
+				} else if (response.status === 403) {
+					const clone = response.clone();
+					try {
+						const data = await clone.json();
+						if (data.error_code === 'PASSWORD_EXPIRED') {
+							if (typeof Swal !== 'undefined') {
+								Swal.fire('Password Expired', data.message, 'warning').then(() => {
+									if (typeof bootstrap !== 'undefined' && document.getElementById('kt_modal_change_password')) {
+										const modal = new bootstrap.Modal(document.getElementById('kt_modal_change_password'));
+										modal.show();
+									}
+								});
+							}
+						}
+					} catch(e) {}
 				}
 				return response;
 			};
@@ -4231,9 +4246,29 @@ License: For each use you must have a valid license purchased only from above li
 							localStorage.removeItem('jwt_token');
 							localStorage.removeItem('user_data');
 							window.location.href = '{{ route('login') }}';
+						},
+						403: function(xhr) {
+							if (xhr.responseJSON && xhr.responseJSON.error_code === 'PASSWORD_EXPIRED') {
+								if (typeof Swal !== 'undefined') {
+									Swal.fire('Password Expired', xhr.responseJSON.message, 'warning').then(() => {
+										if (typeof bootstrap !== 'undefined' && document.getElementById('kt_modal_change_password')) {
+											const modal = new bootstrap.Modal(document.getElementById('kt_modal_change_password'));
+											modal.show();
+										}
+									});
+								}
+							}
 						}
 					}
 				});
+
+				// Suppress DataTables default alert
+				if ($.fn.dataTable) {
+					$.fn.dataTable.ext.errMode = 'none';
+					$(document).on('error.dt', function(e, settings, techNote, message) {
+						console.error('DataTables error: ', message);
+					});
+				}
 			}
 
 			document.addEventListener('DOMContentLoaded', function () {
@@ -4279,7 +4314,13 @@ License: For each use you must have a valid license purchased only from above li
 				if (changePasswordForm) {
 					changePasswordForm.addEventListener('submit', function (e) {
 						e.preventDefault();
-						const userId = document.getElementById('change_password_user_id').value;
+						let userId = document.getElementById('change_password_user_id').value;
+						if (!userId && typeof localStorage !== 'undefined') {
+							try {
+								const ud = JSON.parse(localStorage.getItem('user_data'));
+								if (ud && ud.id) userId = ud.id;
+							} catch (e) {}
+						}
 						const formData = new FormData(changePasswordForm);
 						const data = Object.fromEntries(formData.entries());
 

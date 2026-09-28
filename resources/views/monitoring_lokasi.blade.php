@@ -3,7 +3,7 @@
 @section('title', 'Monitoring Lokasi')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
 
 <!--begin::Content-->
 <div id="kt_app_content" class="app-content flex-column-fluid">
@@ -16,7 +16,7 @@
                     <div class="card-header border-0 pt-5">
                         <h3 class="card-title align-items-start flex-column">
                             <span class="card-label fw-bold fs-3 mb-1">Peta Lokasi Karyawan</span>
-                            <span class="text-muted mt-1 fw-semibold fs-7">Memantau lokasi karyawan berdasarkan titik kordinat terakhir</span>
+                            <span class="text-muted mt-1 fw-semibold fs-7">Memantau lokasi karyawan berdasarkan titik kordinat terakhir (menggunakan Mapbox)</span>
                         </h3>
                     </div>
                     <div class="card-body py-4">
@@ -33,17 +33,23 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var map = L.map('map').setView([-6.2088, 106.8456], 10);
+        // PERHATIAN: Masukkan API Key Mapbox Anda di file .env sebagai MAPBOX_TOKEN
+        mapboxgl.accessToken = '{{ env('MAPBOX_TOKEN', 'YOUR_MAPBOX_ACCESS_TOKEN_HERE') }}';
+        
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12', // style URL
+            center: [106.8456, -6.2088], // starting position [lng, lat]
+            zoom: 10 // starting zoom
+        });
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        // Add zoom and rotation controls to the map.
+        map.addControl(new mapboxgl.NavigationControl());
 
-        var markersGroup = L.layerGroup().addTo(map);
+        var markers = [];
 
         function loadLocations() {
             var token = localStorage.getItem('jwt_token');
@@ -57,42 +63,73 @@
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert("Sesi Anda telah habis atau Anda belum login. Silakan login kembali.");
+                        window.location.href = '/login';
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                markersGroup.clearLayers();
+                // Clear existing markers
+                markers.forEach(marker => marker.remove());
+                markers = [];
                 
-                var bounds = [];
-                var count = 0;
+                var bounds = null;
                 
                 if (Array.isArray(data)) {
                     data.forEach(function(user) {
                         if (user.latitude && user.longitude) {
-                            var latlng = [user.latitude, user.longitude];
+                            var lng = parseFloat(user.longitude);
+                            var lat = parseFloat(user.latitude);
+                            
                             var popupContent = `
-                                <div style="text-align: center;">
+                                <div style="text-align: center; padding: 5px;">
                                     <strong>${user.nama}</strong><br>
                                     <span style="color: #666;">@${user.username}</span><br>
-                                    <small>${user.latitude}, ${user.longitude}</small>
+                                    <small>${lat}, ${lng}</small>
                                 </div>
                             `;
-                            L.marker(latlng).bindPopup(popupContent).addTo(markersGroup);
-                            bounds.push(latlng);
-                            count++;
+                            
+                            var popup = new mapboxgl.Popup({ offset: 25 })
+                                .setHTML(popupContent);
+                                
+                            var marker = new mapboxgl.Marker()
+                                .setLngLat([lng, lat])
+                                .setPopup(popup)
+                                .addTo(map);
+                                
+                            markers.push(marker);
+                            
+                            if (!bounds) {
+                                bounds = new mapboxgl.LngLatBounds([lng, lat], [lng, lat]);
+                            } else {
+                                bounds.extend([lng, lat]);
+                            }
                         }
                     });
+                } else {
+                    console.error("Data is not an array:", data);
                 }
 
-                if (bounds.length > 0) {
-                    // Only fit bounds if there's multiple locations or we want to zoom in on them
-                    // map.fitBounds(bounds); 
+                if (bounds) {
+                    map.fitBounds(bounds, {
+                        padding: 50,
+                        maxZoom: 15
+                    });
                 }
             })
             .catch(error => console.error('Error fetching locations:', error));
         }
 
-        loadLocations();
-        // Refresh every 30 seconds
-        setInterval(loadLocations, 30000);
+        map.on('load', function() {
+            loadLocations();
+            // Refresh every 30 seconds
+            setInterval(loadLocations, 30000);
+        });
     });
 </script>
 @endpush
