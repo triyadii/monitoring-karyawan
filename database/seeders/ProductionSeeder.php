@@ -80,7 +80,7 @@ class ProductionSeeder extends Seeder
             ],
         ];
         foreach ($data_jenis_pegawais as $row) {
-            DB::table('jenis_pegawais')->updateOrInsert(['id' => $row['id']], $row);
+            DB::table('jenis_pegawais')->updateOrInsert(['uuid' => $row['uuid']], $row);
         }
 
         // Seed master_status_clients
