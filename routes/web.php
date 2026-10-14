@@ -81,3 +81,7 @@ Route::get('/api-wilayah/{path}', function ($path) {
 
     return response($response->body(), $response->status())->header('Content-Type', 'application/json');
 })->where('path', '.*');
+
+Route::get('/fcm-test', function () {
+    return view('fcm_test');
+})->name('fcm-test');

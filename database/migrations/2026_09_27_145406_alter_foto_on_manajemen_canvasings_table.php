@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
@@ -12,7 +10,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE manajemen_canvasings ALTER COLUMN foto TYPE JSON USING foto::json');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE manajemen_canvasings ALTER COLUMN foto TYPE JSON USING foto::json');
+        }
     }
 
     /**
@@ -20,6 +20,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE manajemen_canvasings ALTER COLUMN foto TYPE VARCHAR(255)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE manajemen_canvasings ALTER COLUMN foto TYPE VARCHAR(255)');
+        }
     }
 };

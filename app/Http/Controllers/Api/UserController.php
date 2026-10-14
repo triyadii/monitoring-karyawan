@@ -314,4 +314,33 @@ class UserController extends Controller
 
         return response()->json($users);
     }
+
+    #[OA\Post(
+        path: '/api/users/{id}/reset-fcm-token',
+        summary: 'Reset user FCM token (Admin/Supervisor)',
+        security: [['bearerAuth' => []]],
+        tags: ['Users'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'FCM token reset successfully'),
+            new OA\Response(response: 404, description: 'User not found'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function resetFcmToken($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['fcm_token' => null]);
+
+        return response()->json([
+            'message' => 'FCM token berhasil direset untuk user '.$user->username,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'fcm_token' => $user->fcm_token,
+            ],
+        ]);
+    }
 }

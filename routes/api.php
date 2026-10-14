@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\ManajemenPpdController;
 use App\Http\Controllers\Api\ManajemenVisitController;
 use App\Http\Controllers\Api\MasterStatusClientController;
 use App\Http\Controllers\Api\MemberStatsController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PenugasanController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\WilayahController;
@@ -20,6 +22,8 @@ use App\Http\Middleware\EnsurePasswordIsNotExpired;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/reset-fcm-token', [AuthController::class, 'resetFcmToken']);
+Route::get('/firebase-config', [NotificationController::class, 'config']);
 
 // Wilayah Routes (Public)
 Route::get('/wilayah/provinces', [WilayahController::class, 'provinces']);
@@ -32,6 +36,7 @@ Route::middleware(['auth:api', EnsurePasswordIsNotExpired::class])->group(functi
     Route::apiResource('/roles', RoleController::class);
     Route::patch('/users/{id}/password', [UserController::class, 'updatePassword']);
     Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('/users/{id}/reset-fcm-token', [UserController::class, 'resetFcmToken']);
     Route::post('/users/{id}/location', [UserController::class, 'updateLocation']);
     Route::get('/users/{id}/location', [UserController::class, 'getLocation']);
     Route::get('/users-locations', [UserController::class, 'locations']);
@@ -63,12 +68,12 @@ Route::middleware(['auth:api', EnsurePasswordIsNotExpired::class])->group(functi
     Route::post('/manajemen-canvasing/{uuid}', [ManajemenCanvasingController::class, 'update']);
     Route::get('/manajemen-canvasing/user/{userId}', [ManajemenCanvasingController::class, 'getByUser']);
     Route::apiResource('/manajemen-canvasing', ManajemenCanvasingController::class)->except(['update']);
-    
+
     // Penugasan
-    Route::get('/penugasans', [\App\Http\Controllers\Api\PenugasanController::class, 'index']);
-    Route::post('/penugasans', [\App\Http\Controllers\Api\PenugasanController::class, 'store']);
-    Route::post('/penugasans/{uuid}/status', [\App\Http\Controllers\Api\PenugasanController::class, 'updateStatus']);
-    Route::delete('/penugasans/{uuid}', [\App\Http\Controllers\Api\PenugasanController::class, 'destroy']);
+    Route::get('/penugasans', [PenugasanController::class, 'index']);
+    Route::post('/penugasans', [PenugasanController::class, 'store']);
+    Route::post('/penugasans/{uuid}/status', [PenugasanController::class, 'updateStatus']);
+    Route::delete('/penugasans/{uuid}', [PenugasanController::class, 'destroy']);
     Route::apiResource('/master-status-clients', MasterStatusClientController::class);
     Route::post('/clients/import', [ClientController::class, 'import']);
     Route::post('/clients/bulk-disposisi', [ClientController::class, 'bulkDisposisi']);
@@ -85,4 +90,9 @@ Route::middleware(['auth:api', EnsurePasswordIsNotExpired::class])->group(functi
     Route::post('/kegiatan-anggota/{id}', [KegiatanAnggotaController::class, 'update']);
     Route::get('/kegiatan-anggota/my-kegiatan', [KegiatanAnggotaController::class, 'myKegiatan']);
     Route::apiResource('/kegiatan-anggota', KegiatanAnggotaController::class)->except(['update']);
+
+    // Notifications
+    Route::post('/notifications/send-to-token', [NotificationController::class, 'sendToToken']);
+    Route::post('/notifications/send-to-user', [NotificationController::class, 'sendToUser']);
+    Route::post('/notifications/send-to-all', [NotificationController::class, 'sendToAll']);
 });

@@ -33,7 +33,8 @@
                             "schema": {
                                 "required": [
                                     "username",
-                                    "password"
+                                    "password",
+                                    "fcm_token"
                                 ],
                                 "properties": {
                                     "username": {
@@ -43,6 +44,10 @@
                                     "password": {
                                         "type": "string",
                                         "example": "password"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string",
+                                        "example": "eX123fcm_device_token_abc..."
                                     }
                                 },
                                 "type": "object"
@@ -59,9 +64,19 @@
                                     "properties": {
                                         "user": {
                                             "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
                                                 "role_id": {
                                                     "type": "string",
                                                     "format": "uuid"
+                                                },
+                                                "role_name": {
+                                                    "type": "string"
+                                                },
+                                                "jenis_pegawai_name": {
+                                                    "type": "string"
                                                 },
                                                 "username": {
                                                     "type": "string"
@@ -71,6 +86,9 @@
                                                 },
                                                 "status": {
                                                     "type": "integer"
+                                                },
+                                                "fcm_token": {
+                                                    "type": "string"
                                                 },
                                                 "is_password_expired": {
                                                     "type": "boolean"
@@ -101,6 +119,76 @@
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Device mismatch (FCM token does not match)"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/reset-fcm-token": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset FCM token with credentials to switch device",
+                "operationId": "4a0c3109364e016957bcaee662d98d7f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "admin"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    },
+                                    "fcm_token": {
+                                        "description": "Optional new device FCM token. If omitted, fcm_token is cleared.",
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "FCM token reset successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid username or password"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 }
             }
@@ -1093,6 +1181,15 @@
                         }
                     },
                     {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama aksi",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter_nama",
                         "in": "query",
                         "required": false,
@@ -1385,6 +1482,15 @@
                         }
                     },
                     {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama aksi",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter_nama",
                         "in": "query",
                         "required": false,
@@ -1428,6 +1534,15 @@
                     {
                         "name": "user_id",
                         "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -1725,6 +1840,15 @@
                         }
                     },
                     {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter_nama",
                         "in": "query",
                         "required": false,
@@ -1768,6 +1892,15 @@
                     {
                         "name": "user_id",
                         "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -2049,6 +2182,15 @@
                         }
                     },
                     {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter_nama",
                         "in": "query",
                         "required": false,
@@ -2092,6 +2234,15 @@
                     {
                         "name": "user_id",
                         "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -2180,10 +2331,13 @@
                                         "type": "string",
                                         "format": "date"
                                     },
-                                    "ktp": {
-                                        "description": "Image KTP (jpeg, png, jpg)",
-                                        "type": "string",
-                                        "format": "binary"
+                                    "berkas[]": {
+                                        "description": "Upload berkas/dokumen (jpeg, png, jpg, pdf). Maksimal 3 file.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -2267,6 +2421,11 @@
                                     "alamat"
                                 ],
                                 "properties": {
+                                    "_method": {
+                                        "description": "Method spoofing for PUT request",
+                                        "type": "string",
+                                        "example": "PUT"
+                                    },
                                     "namaClient": {
                                         "type": "string"
                                     },
@@ -2301,10 +2460,13 @@
                                         "type": "string",
                                         "format": "date"
                                     },
-                                    "ktp": {
-                                        "description": "Image KTP (jpeg, png, jpg)",
-                                        "type": "string",
-                                        "format": "binary"
+                                    "berkas[]": {
+                                        "description": "Upload berkas/dokumen baru untuk menggantikan yang lama (jpeg, png, jpg, pdf). Maksimal 3 file.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -2409,7 +2571,7 @@
         "/api/manajemen-ppd/user/{userId}": {
             "get": {
                 "tags": [
-                    "Manajemen Ppd"
+                    "Manajemen PPD"
                 ],
                 "summary": "Get list of ManajemenPpd by user id",
                 "operationId": "8e896359b1bd5fa35bed343ce5cfb454",
@@ -2421,6 +2583,15 @@
                         "schema": {
                             "type": "string",
                             "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -2467,6 +2638,15 @@
                     {
                         "name": "user_id",
                         "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -2774,6 +2954,15 @@
                         }
                     },
                     {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter_nama",
                         "in": "query",
                         "required": false,
@@ -2848,6 +3037,218 @@
                 ]
             }
         },
+        "/api/firebase-config": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get Firebase Web & Messaging configuration",
+                "operationId": "54f31e11c5f4dda8c67c1f73445e6556",
+                "responses": {
+                    "200": {
+                        "description": "Firebase configuration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "apiKey": {
+                                            "type": "string"
+                                        },
+                                        "authDomain": {
+                                            "type": "string"
+                                        },
+                                        "projectId": {
+                                            "type": "string"
+                                        },
+                                        "storageBucket": {
+                                            "type": "string"
+                                        },
+                                        "messagingSenderId": {
+                                            "type": "string"
+                                        },
+                                        "appId": {
+                                            "type": "string"
+                                        },
+                                        "measurementId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/send-to-token": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Send push notification to a specific FCM token",
+                "operationId": "2d035ae4f99a71d13739dbc7210c8e78",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "fcm_token",
+                                    "title",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "fcm_token": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Pengumuman Penting"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Silakan cek jadwal kunjungan terbaru."
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification dispatch result"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/send-to-user": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Send push notification to a specific user by ID",
+                "operationId": "e432d606b5b42dcc0a361d643cc9af4c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "description": "Defaults to current authenticated user if not provided",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Tugas Baru"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Anda memiliki penugasan baru."
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification dispatch result"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/send-to-all": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Send push notification broadcast to all users with FCM token",
+                "operationId": "2b686072968b728f8d0265a074113c75",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Broadcast Sistem"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Pemberitahuan kepada seluruh karyawan."
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Broadcast results"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/penugasans": {
             "get": {
                 "tags": [
@@ -2855,6 +3256,34 @@
                 ],
                 "summary": "Get all penugasans",
                 "operationId": "f244c661e2c717493bad335050639590",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status_id",
+                        "in": "query",
+                        "description": "UUID status atau \"pending\" untuk status null",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Pencarian berdasarkan nama client (namaClient pada HO/Canvasing)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all penugasans"
@@ -3613,6 +4042,41 @@
                 ]
             }
         },
+        "/api/users/{id}/reset-fcm-token": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Reset user FCM token (Admin/Supervisor)",
+                "operationId": "22a22201a4ad6291ba145b185f303d1b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FCM token reset successfully"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/wilayah/provinces": {
             "get": {
                 "tags": [
@@ -3858,16 +4322,16 @@
             "description": "Manajemen PPD"
         },
         {
-            "name": "Manajemen Ppd",
-            "description": "Manajemen Ppd"
-        },
-        {
             "name": "Manajemen Visit",
             "description": "Manajemen Visit"
         },
         {
             "name": "Member Stats",
             "description": "Member Stats"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         },
         {
             "name": "Roles",

@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Penugasan extends Model
 {
-    use \Illuminate\Database\Eloquent\Concerns\HasUuids;
-    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+    use HasFactory;
+    use HasUuids;
 
     protected $primaryKey = 'uuid';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -20,7 +24,7 @@ class Penugasan extends Model
         'assigned_by',
         'status_id',
         'catatan',
-        'foto'
+        'foto',
     ];
 
     protected $casts = [
@@ -41,7 +45,7 @@ class Penugasan extends Model
     {
         return $this->belongsTo(User::class, 'assigned_by');
     }
-    
+
     public function status()
     {
         return $this->belongsTo(MasterStatusClient::class, 'status_id');
