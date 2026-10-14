@@ -134,6 +134,19 @@ messaging.onMessage((payload) => {
 const baseUrl = "{{ rtrim(url('/'), '/') }}";
 const swUrl = "{{ url('/firebase-messaging-sw.js') }}";
 
+window.addEventListener('DOMContentLoaded', () => {
+    const savedToken = localStorage.getItem('fcm_test_token');
+    if (savedToken) {
+        currentFcmToken = savedToken;
+        const resultEl = document.getElementById('fcmTokenResult');
+        const containerEl = document.getElementById('tokenContainer');
+        if (resultEl && containerEl) {
+            resultEl.value = savedToken;
+            containerEl.style.display = 'block';
+        }
+    }
+});
+
 async function generateFcmToken() {
     const errorEl = document.getElementById('tokenError');
     const containerEl = document.getElementById('tokenContainer');
@@ -174,6 +187,7 @@ async function generateFcmToken() {
         }
 
         currentFcmToken = token;
+        localStorage.setItem('fcm_test_token', token);
         resultEl.value = token;
         containerEl.style.display = 'block';
         btn.innerText = '✅ FCM Token Berhasil Diambil!';
@@ -198,7 +212,7 @@ async function sendTestNotification() {
     const resultEl = document.getElementById('notifResult');
     const title = document.getElementById('notifTitle').value;
     const body = document.getElementById('notifBody').value;
-    const token = currentFcmToken || document.getElementById('fcmTokenResult').value;
+    const token = (currentFcmToken || localStorage.getItem('fcm_test_token') || document.getElementById('fcmTokenResult').value || '').trim();
 
     if (!token) {
         alert('Silakan dapatkan FCM Token di Langkah 1 terlebih dahulu!');
@@ -226,7 +240,9 @@ async function sendTestNotification() {
         if (res.ok && data.success) {
             resultEl.innerHTML = `<div class="alert alert-success">✅ Notifikasi berhasil dikirim oleh server! Periksa notifikasi di ponsel / layar Anda.</div>`;
         } else {
-            resultEl.innerHTML = `<div class="alert alert-danger">❌ Gagal mengirim: ${data.message || JSON.stringify(data)}</div>`;
+            const errorMsg = data.message || data.error?.error?.message || data.error?.message || JSON.stringify(data);
+            const detail = data.error?.error?.details ? `<br><small class="font-monospace">${JSON.stringify(data.error.error.details)}</small>` : '';
+            resultEl.innerHTML = `<div class="alert alert-danger">❌ Gagal mengirim: ${errorMsg}${detail}</div>`;
         }
     } catch (err) {
         resultEl.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;

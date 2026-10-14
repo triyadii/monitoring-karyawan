@@ -183,6 +183,14 @@ class FirebaseService
                         ],
                     ],
                 ],
+                'webpush' => [
+                    'headers' => [
+                        'Urgency' => 'high',
+                    ],
+                    'notification' => [
+                        'icon' => '/favicon.ico',
+                    ],
+                ],
             ],
         ];
 
@@ -205,9 +213,11 @@ class FirebaseService
 
             Log::error('Firebase HTTP v1 error: '.$response->body());
 
+            $googleErrorMessage = $response->json('error.message');
+
             return [
                 'success' => false,
-                'message' => 'Failed to send notification via Firebase HTTP v1.',
+                'message' => $googleErrorMessage ?: 'Failed to send notification via Firebase HTTP v1.',
                 'error' => $response->json(),
             ];
         } catch (\Throwable $e) {
