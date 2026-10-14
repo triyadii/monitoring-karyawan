@@ -130,6 +130,9 @@ messaging.onMessage((payload) => {
     }
 });
 
+const baseUrl = "{{ rtrim(url('/'), '/') }}";
+const swUrl = "{{ url('/firebase-messaging-sw.js') }}";
+
 async function generateFcmToken() {
     const errorEl = document.getElementById('tokenError');
     const containerEl = document.getElementById('tokenContainer');
@@ -141,6 +144,14 @@ async function generateFcmToken() {
     btn.disabled = true;
     btn.innerText = 'Meminta izin notifikasi...';
 
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+        errorEl.innerText = 'Browser ini tidak mendukung Service Worker atau Web Notification. Pastikan Anda membuka halaman ini melalui HTTPS (bukan HTTP biasa).';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = '🔑 Coba Lagi';
+        return;
+    }
+
     try {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -149,7 +160,7 @@ async function generateFcmToken() {
 
         btn.innerText = 'Mengambil token dari Firebase...';
 
-        const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const swRegistration = await navigator.serviceWorker.register(swUrl, { scope: './' });
 
         const options = { serviceWorkerRegistration: swRegistration };
         if (vapidKey) {
@@ -196,7 +207,7 @@ async function sendTestNotification() {
     resultEl.innerHTML = '<div class="spinner-border spinner-border-sm text-success"></div> Mengirim notifikasi melalui backend...';
 
     try {
-        const res = await fetch('/api/notifications/send-to-token', {
+        const res = await fetch(`${baseUrl}/api/notifications/send-to-token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -212,7 +223,7 @@ async function sendTestNotification() {
 
         const data = await res.json();
         if (res.ok && data.success) {
-            resultEl.innerHTML = `<div class="alert alert-success">✅ Notifikasi berhasil dikirim oleh server! Periksa notifikasi di pojok layar Anda.</div>`;
+            resultEl.innerHTML = `<div class="alert alert-success">✅ Notifikasi berhasil dikirim oleh server! Periksa notifikasi di ponsel / layar Anda.</div>`;
         } else {
             resultEl.innerHTML = `<div class="alert alert-danger">❌ Gagal mengirim: ${data.message || JSON.stringify(data)}</div>`;
         }
@@ -230,7 +241,7 @@ async function testLogin() {
     resultEl.innerHTML = '<div class="spinner-border spinner-border-sm text-primary"></div> Menghubungkan ke API Login...';
 
     try {
-        const res = await fetch('/api/login', {
+        const res = await fetch(`${baseUrl}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({
@@ -262,7 +273,7 @@ async function testResetToken() {
     resultEl.innerHTML = '<div class="spinner-border spinner-border-sm text-danger"></div> Mereset FCM token...';
 
     try {
-        const res = await fetch('/api/reset-fcm-token', {
+        const res = await fetch(`${baseUrl}/api/reset-fcm-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({

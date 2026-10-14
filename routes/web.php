@@ -82,6 +82,18 @@ Route::get('/api-wilayah/{path}', function ($path) {
     return response($response->body(), $response->status())->header('Content-Type', 'application/json');
 })->where('path', '.*');
 
+Route::get('/firebase-messaging-sw.js', function () {
+    $path = public_path('firebase-messaging-sw.js');
+    if (! file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/javascript',
+        'Service-Worker-Allowed' => '/',
+    ]);
+});
+
 Route::get('/fcm-test', function () {
     return view('fcm_test');
 })->name('fcm-test');
