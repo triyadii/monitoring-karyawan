@@ -19,6 +19,7 @@ class ManajemenAksiController extends Controller
         tags: ['Manajemen Aksi'],
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama aksi', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -33,6 +34,10 @@ class ManajemenAksiController extends Controller
 
         if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaAksi', 'like', '%'.$request->query('search').'%');
         }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
@@ -259,6 +264,7 @@ class ManajemenAksiController extends Controller
         tags: ['Manajemen Aksi'],
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama aksi', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -270,6 +276,10 @@ class ManajemenAksiController extends Controller
     public function getByUser(Request $request, $userId)
     {
         $query = ManajemenAksi::with('user')->where('user_id', $userId);
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaAksi', 'like', '%'.$request->query('search').'%');
+        }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
             $query->where('namaAksi', 'like', '%'.$request->query('filter_nama').'%');

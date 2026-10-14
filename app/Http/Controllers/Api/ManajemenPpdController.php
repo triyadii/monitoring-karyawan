@@ -19,6 +19,7 @@ class ManajemenPpdController extends Controller
         tags: ['Manajemen PPD'],
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -33,6 +34,10 @@ class ManajemenPpdController extends Controller
 
         if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
         }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
@@ -72,10 +77,10 @@ class ManajemenPpdController extends Controller
                         new OA\Property(property: 'pinjaman', type: 'string'),
                         new OA\Property(property: 'jatuhTempo', type: 'string', format: 'date'),
                         new OA\Property(
-                            property: 'ktp',
-                            type: 'string',
-                            format: 'binary',
-                            description: 'Image KTP (jpeg, png, jpg)'
+                            property: 'berkas[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Upload berkas/dokumen (jpeg, png, jpg, pdf). Maksimal 3 file.'
                         ),
                     ]
                 )
@@ -101,16 +106,21 @@ class ManajemenPpdController extends Controller
             'jenisKendaraan' => 'nullable|string',
             'pinjaman' => 'nullable|string',
             'jatuhTempo' => 'nullable|date',
-            'ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'berkas' => 'nullable|array|max:3',
+            'berkas.*' => 'file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
         ]);
 
         if ($request->user()) {
             $validated['user_id'] = $request->user()->id;
         }
 
-        if ($request->hasFile('ktp')) {
-            $path = $request->file('ktp')->store('ppd', 'public');
-            $validated['ktp'] = 'storage/'.$path;
+        if ($request->hasFile('berkas')) {
+            $paths = [];
+            foreach ($request->file('berkas') as $file) {
+                $path = $file->store('ppd', 'public');
+                $paths[] = 'storage/'.$path;
+            }
+            $validated['berkas'] = $paths;
         }
 
         $ppd = ManajemenPpd::create($validated);
@@ -153,6 +163,7 @@ class ManajemenPpdController extends Controller
                 schema: new OA\Schema(
                     required: ['namaClient', 'nomorTelepon', 'alamat'],
                     properties: [
+                        new OA\Property(property: '_method', type: 'string', example: 'PUT', description: 'Method spoofing for PUT request'),
                         new OA\Property(property: 'namaClient', type: 'string'),
                         new OA\Property(property: 'nomorTelepon', type: 'string'),
                         new OA\Property(property: 'alamat', type: 'string'),
@@ -165,10 +176,10 @@ class ManajemenPpdController extends Controller
                         new OA\Property(property: 'pinjaman', type: 'string'),
                         new OA\Property(property: 'jatuhTempo', type: 'string', format: 'date'),
                         new OA\Property(
-                            property: 'ktp',
-                            type: 'string',
-                            format: 'binary',
-                            description: 'Image KTP (jpeg, png, jpg)'
+                            property: 'berkas[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Upload berkas/dokumen baru untuk menggantikan yang lama (jpeg, png, jpg, pdf). Maksimal 3 file.'
                         ),
                     ]
                 )
@@ -196,20 +207,29 @@ class ManajemenPpdController extends Controller
             'jenisKendaraan' => 'nullable|string',
             'pinjaman' => 'nullable|string',
             'jatuhTempo' => 'nullable|date',
-            'ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'berkas' => 'nullable|array|max:3',
+            'berkas.*' => 'file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
         ]);
 
-        if ($request->hasFile('ktp')) {
+        if ($request->hasFile('berkas')) {
             // Hapus file lama jika ada
-            if ($ppd->ktp) {
-                $relativePath = str_replace('storage/', '', $ppd->ktp);
-                if (Storage::disk('public')->exists($relativePath)) {
-                    Storage::disk('public')->delete($relativePath);
+            if (! empty($ppd->berkas) && is_array($ppd->berkas)) {
+                foreach ($ppd->berkas as $oldFile) {
+                    $relativePath = str_replace('storage/', '', $oldFile);
+                    if (Storage::disk('public')->exists($relativePath)) {
+                        Storage::disk('public')->delete($relativePath);
+                    }
                 }
             }
 
-            $path = $request->file('ktp')->store('ppd', 'public');
-            $validated['ktp'] = 'storage/'.$path;
+            $paths = [];
+            foreach ($request->file('berkas') as $file) {
+                $path = $file->store('ppd', 'public');
+                $paths[] = 'storage/'.$path;
+            }
+            $validated['berkas'] = $paths;
+        } else {
+            unset($validated['berkas']);
         }
 
         $ppd->update($validated);
@@ -234,10 +254,12 @@ class ManajemenPpdController extends Controller
     {
         $ppd = ManajemenPpd::findOrFail($uuid);
 
-        if ($ppd->ktp) {
-            $relativePath = str_replace('storage/', '', $ppd->ktp);
-            if (Storage::disk('public')->exists($relativePath)) {
-                Storage::disk('public')->delete($relativePath);
+        if (! empty($ppd->berkas) && is_array($ppd->berkas)) {
+            foreach ($ppd->berkas as $oldFile) {
+                $relativePath = str_replace('storage/', '', $oldFile);
+                if (Storage::disk('public')->exists($relativePath)) {
+                    Storage::disk('public')->delete($relativePath);
+                }
             }
         }
 
@@ -269,9 +291,10 @@ class ManajemenPpdController extends Controller
         path: '/api/manajemen-ppd/user/{userId}',
         summary: 'Get list of ManajemenPpd by user id',
         security: [['bearerAuth' => []]],
-        tags: ['Manajemen Ppd'],
+        tags: ['Manajemen PPD'],
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -283,6 +306,10 @@ class ManajemenPpdController extends Controller
     public function getByUser(Request $request, $userId)
     {
         $query = ManajemenPpd::with('user')->where('user_id', $userId);
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
+        }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
             $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');

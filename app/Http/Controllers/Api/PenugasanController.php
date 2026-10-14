@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Penugasan;
-use App\Models\ManajemenHo;
 use App\Models\ManajemenCanvasing;
+use App\Models\ManajemenHo;
+use App\Models\Penugasan;
 use Illuminate\Http\Request;
-use OpenApi\Attributes as OA;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use OpenApi\Attributes as OA;
 
 #[OA\Tag(
     name: 'Penugasan',
@@ -21,8 +22,13 @@ class PenugasanController extends Controller
         summary: 'Get all penugasans',
         security: [['bearerAuth' => []]],
         tags: ['Penugasan'],
+        parameters: [
+            new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'status_id', in: 'query', required: false, description: 'UUID status atau "pending" untuk status null', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client (namaClient pada HO/Canvasing)', schema: new OA\Schema(type: 'string')),
+        ],
         responses: [
-            new OA\Response(response: 200, description: 'List of all penugasans')
+            new OA\Response(response: 200, description: 'List of all penugasans'),
         ]
     )]
     public function index(Request $request)
@@ -32,7 +38,7 @@ class PenugasanController extends Controller
         if ($request->has('user_id')) {
             $query->where('user_id', $request->user_id);
         }
-        
+
         if ($request->has('status_id')) {
             if ($request->status_id === 'pending') {
                 $query->whereNull('status_id');
@@ -41,11 +47,21 @@ class PenugasanController extends Controller
             }
         }
 
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $searchTerm = $request->query('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHasMorph('assignable', [ManajemenHo::class, ManajemenCanvasing::class], function ($sub) use ($searchTerm) {
+                    $sub->where('namaClient', 'like', '%'.$searchTerm.'%');
+                });
+            });
+        }
+
         $penugasans = $query->orderBy('created_at', 'desc')->get();
 
         // Transform assignable data for easier frontend use
         $penugasans->transform(function ($item) {
             $item->sumber_tipe = class_basename($item->assignable_type);
+
             return $item;
         });
 
@@ -72,7 +88,7 @@ class PenugasanController extends Controller
         responses: [
             new OA\Response(response: 201, description: 'Penugasan created successfully'),
             new OA\Response(response: 422, description: 'Validation error'),
-            new OA\Response(response: 404, description: 'Assignable record not found')
+            new OA\Response(response: 404, description: 'Assignable record not found'),
         ]
     )]
     public function store(Request $request)
@@ -81,14 +97,14 @@ class PenugasanController extends Controller
             'assignable_type' => 'required|string|in:HO,Canvasing',
             'assignable_id' => 'required|uuid',
             'user_id' => 'required|uuid|exists:users,id',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
         ]);
 
         $modelClass = $validated['assignable_type'] === 'HO' ? ManajemenHo::class : ManajemenCanvasing::class;
-        
+
         // Verify the record exists
         $record = $modelClass::find($validated['assignable_id']);
-        if (!$record) {
+        if (! $record) {
             return response()->json(['message' => 'Record not found'], 404);
         }
 
@@ -113,7 +129,7 @@ class PenugasanController extends Controller
         ]);
 
         return response()->json(
-            $penugasan->load(['assignable', 'user', 'assigner']), 
+            $penugasan->load(['assignable', 'user', 'assigner']),
             201
         );
     }
@@ -124,7 +140,7 @@ class PenugasanController extends Controller
         security: [['bearerAuth' => []]],
         tags: ['Penugasan'],
         parameters: [
-            new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))
+            new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -138,14 +154,14 @@ class PenugasanController extends Controller
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Max 3 images (jpeg, png, jpg)'
-                        )
+                        ),
                     ]
                 )
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Status updated successfully'),
-            new OA\Response(response: 404, description: 'Penugasan not found')
+            new OA\Response(response: 404, description: 'Penugasan not found'),
         ]
     )]
     public function updateStatus(Request $request, $uuid)
@@ -162,8 +178,8 @@ class PenugasanController extends Controller
             // Delete old photos
             if ($penugasan->foto && is_array($penugasan->foto)) {
                 foreach ($penugasan->foto as $oldFoto) {
-                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldFoto)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFoto);
+                    if (Storage::disk('public')->exists($oldFoto)) {
+                        Storage::disk('public')->delete($oldFoto);
                     }
                 }
             }
@@ -176,7 +192,7 @@ class PenugasanController extends Controller
         }
 
         $penugasan->update($validated);
-        
+
         // Also update parent client status if not null
         if ($validated['status_id']) {
             if ($penugasan->assignable) {
@@ -193,11 +209,11 @@ class PenugasanController extends Controller
         security: [['bearerAuth' => []]],
         tags: ['Penugasan'],
         parameters: [
-            new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))
+            new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
         ],
         responses: [
             new OA\Response(response: 204, description: 'Penugasan deleted'),
-            new OA\Response(response: 404, description: 'Penugasan not found')
+            new OA\Response(response: 404, description: 'Penugasan not found'),
         ]
     )]
     public function destroy($uuid)

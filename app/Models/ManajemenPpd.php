@@ -28,8 +28,12 @@ class ManajemenPpd extends Model
         'jenisKendaraan',
         'pinjaman',
         'jatuhTempo',
-        'ktp',
+        'berkas',
         'user_id',
+    ];
+
+    protected $casts = [
+        'berkas' => 'array',
     ];
 
     public function user()

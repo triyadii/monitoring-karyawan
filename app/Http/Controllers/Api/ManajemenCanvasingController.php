@@ -6,6 +6,7 @@ use App\Exports\ManajemenCanvasingExport;
 use App\Http\Controllers\Controller;
 use App\Models\ManajemenCanvasing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use OpenApi\Attributes as OA;
 
@@ -18,6 +19,7 @@ class ManajemenCanvasingController extends Controller
         tags: ['Manajemen Canvasing'],
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -32,6 +34,10 @@ class ManajemenCanvasingController extends Controller
 
         if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
         }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
@@ -179,13 +185,13 @@ class ManajemenCanvasingController extends Controller
             // Delete old photos
             if ($canvasing->foto && is_array($canvasing->foto)) {
                 foreach ($canvasing->foto as $oldFoto) {
-                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldFoto)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFoto);
+                    if (Storage::disk('public')->exists($oldFoto)) {
+                        Storage::disk('public')->delete($oldFoto);
                     }
                 }
             } elseif ($canvasing->foto && is_string($canvasing->foto)) {
-                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($canvasing->foto)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($canvasing->foto);
+                if (Storage::disk('public')->exists($canvasing->foto)) {
+                    Storage::disk('public')->delete($canvasing->foto);
                 }
             }
 
@@ -248,6 +254,7 @@ class ManajemenCanvasingController extends Controller
         tags: ['Manajemen Canvasing'],
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -259,6 +266,10 @@ class ManajemenCanvasingController extends Controller
     public function getByUser(Request $request, $userId)
     {
         $query = ManajemenCanvasing::with(['user', 'status'])->where('user_id', $userId);
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
+        }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
             $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');

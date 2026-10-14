@@ -18,6 +18,7 @@ class ManajemenHoController extends Controller
         tags: ['Manajemen HO'],
         parameters: [
             new OA\Parameter(name: 'user_id', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -32,6 +33,10 @@ class ManajemenHoController extends Controller
 
         if ($request->has('user_id') && ! empty($request->query('user_id'))) {
             $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
         }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
@@ -203,6 +208,7 @@ class ManajemenHoController extends Controller
         tags: ['Manajemen Ho'],
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Pencarian berdasarkan nama client', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_nama', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter_tanggal', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
         ],
@@ -214,6 +220,10 @@ class ManajemenHoController extends Controller
     public function getByUser(Request $request, $userId)
     {
         $query = ManajemenHo::with(['user', 'status'])->where('user_id', $userId);
+
+        if ($request->has('search') && ! empty($request->query('search'))) {
+            $query->where('namaClient', 'like', '%'.$request->query('search').'%');
+        }
 
         if ($request->has('filter_nama') && ! empty($request->query('filter_nama'))) {
             $query->where('namaClient', 'like', '%'.$request->query('filter_nama').'%');
