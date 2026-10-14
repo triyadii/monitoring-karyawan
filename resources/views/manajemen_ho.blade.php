@@ -20,7 +20,7 @@
                                 <span class="path1"></span>
                                 <span class="path2"></span>
                             </i>
-                            <input type="text" data-kt-ho-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari HO..." />
+                            <input type="text" id="search_nama" data-kt-ho-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari nama client..." />
                         </div>
                         <div class="d-flex align-items-center gap-2 my-1 ms-3">
                             <input type="date" id="filter_tanggal" class="form-control form-control-solid w-150px" title="Filter Tanggal" />
@@ -340,8 +340,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (selectedUserId) {
                     d.user_id = selectedUserId;
                 }
+                const searchNama = document.getElementById('search_nama');
                 const filterTanggal = document.getElementById('filter_tanggal');
                 const filterNama = document.getElementById('filter_nama');
+                if (searchNama && searchNama.value) d.search = searchNama.value;
                 if (filterTanggal) d.filter_tanggal = filterTanggal.value;
                 if (filterNama) d.filter_nama = filterNama.value;
             },
@@ -386,9 +388,12 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     });
 
-    // Search functionality
-    $('[data-kt-ho-table-filter="search"]').on('keyup', function () {
-        datatable.search(this.value).draw();
+    // Wire search input to reload DataTable via API
+    document.getElementById('search_nama').addEventListener('input', function() {
+        clearTimeout(this._searchTimer);
+        this._searchTimer = setTimeout(function() {
+            datatable.ajax.reload();
+        }, 400);
     });
 
     // Handle Form Submit
@@ -592,7 +597,8 @@ window.applyFilters = function() {
 window.resetFilters = function() {
     document.getElementById('filter_tanggal').value = '';
     document.getElementById('filter_nama').value = '';
-    $('#kt_table_hos').DataTable().ajax.reload();
+    document.getElementById('search_nama').value = '';
+    datatable.ajax.reload();
 }
 
 window.exportData = function(module) {

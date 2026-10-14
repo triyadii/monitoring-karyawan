@@ -20,7 +20,7 @@
                                 <span class="path1"></span>
                                 <span class="path2"></span>
                             </i>
-                            <input type="text" data-kt-ppd-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari PPD..." />
+                            <input type="text" id="search_nama" data-kt-ppd-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Cari nama client..." />
                         </div>
                         <div class="d-flex align-items-center gap-2 my-1 ms-3">
                             <input type="date" id="filter_tanggal" class="form-control form-control-solid w-150px" title="Filter Tanggal" />
@@ -46,7 +46,7 @@
                                 <th class="min-w-125px">Nama Client</th>
                                 <th class="min-w-125px">Nomor Telepon</th>
                                 <th class="min-w-125px">Nomor Kontrak</th>
-                                <th class="min-w-100px">KTP</th>
+                                <th class="min-w-125px">Berkas</th>
                                 <th class="min-w-125px">Dibuat Oleh</th>
                                 <th class="text-end min-w-100px">Actions</th>
                             </tr>
@@ -132,16 +132,16 @@
                         </div>
                     </div>
 
-                    <div class="row g-5">
                         <div class="col-md-6 d-flex flex-column mb-5 fv-row">
                             <label class="d-flex align-items-center fs-6 fw-semibold form-label mb-2">Jatuh Tempo</label>
                             <input type="date" class="form-control form-control-solid" name="jatuhTempo" id="jatuhTempo" />
                         </div>
                         <div class="col-md-6 d-flex flex-column mb-5 fv-row">
-                            <label class="d-flex align-items-center fs-6 fw-semibold form-label mb-2">Foto KTP</label>
-                            <input type="file" class="form-control form-control-solid" name="ktp" id="ktp" accept=".jpg, .jpeg, .png" />
+                            <label class="d-flex align-items-center fs-6 fw-semibold form-label mb-2">Berkas / Dokumen</label>
+                            <input type="file" class="form-control form-control-solid" name="berkas[]" id="berkas" accept=".jpg,.jpeg,.png,.gif,.pdf" multiple />
+                            <div class="text-muted fs-7 mt-1">Maksimal 3 file. Format: jpg, png, gif, pdf. Maks 5MB/file.</div>
+                            <div id="berkas_preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                         </div>
-                    </div>
 
 
 
@@ -242,10 +242,10 @@
                 </div>
 
                 <div class="d-flex flex-column mb-5">
-                    <h4 class="text-gray-900 mb-1">Foto KTP</h4>
+                    <h4 class="text-gray-900 mb-1">Berkas / Dokumen</h4>
                     <div class="separator mb-3"></div>
                     <div id="detail_ktp" class="d-flex flex-wrap gap-4 mt-2">
-                        <!-- Foto di-generate dari JS -->
+                        <!-- Berkas di-generate dari JS -->
                     </div>
                 </div>
             </div>
@@ -347,8 +347,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (selectedUserId) {
                     d.user_id = selectedUserId;
                 }
+                const searchNama = document.getElementById('search_nama');
                 const filterTanggal = document.getElementById('filter_tanggal');
                 const filterNama = document.getElementById('filter_nama');
+                if (searchNama && searchNama.value) d.search = searchNama.value;
                 if (filterTanggal) d.filter_tanggal = filterTanggal.value;
                 if (filterNama) d.filter_nama = filterNama.value;
             },
@@ -358,13 +360,21 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: 'namaClient', defaultContent: '-' },
             { data: 'nomorTelepon', defaultContent: '-' },
             { data: 'nomorKontrak', defaultContent: '-' },
-            { data: 'ktp', orderable: false, render: function(data) {
-                if (data) {
-                    return `<a href="${baseUrl}/${data}" target="_blank">
-                                <img src="${baseUrl}/${data}" alt="KTP" class="w-40px h-40px rounded" style="object-fit:cover;" />
-                            </a>`;
+            { data: 'berkas', orderable: false, render: function(data) {
+                if (data && Array.isArray(data) && data.length > 0) {
+                    let html = '<div class="d-flex align-items-center gap-1">';
+                    data.forEach(function(f) {
+                        const ext = f.split('.').pop().toLowerCase();
+                        if (['jpg','jpeg','png','gif'].includes(ext)) {
+                            html += `<a href="${baseUrl}/${f}" target="_blank"><img src="${baseUrl}/${f}" alt="berkas" class="w-35px h-35px rounded" style="object-fit:cover;"/></a>`;
+                        } else {
+                            html += `<a href="${baseUrl}/${f}" target="_blank" class="btn btn-icon btn-sm btn-light-primary"><i class="ki-duotone ki-file fs-3"><span class="path1"></span><span class="path2"></span></i></a>`;
+                        }
+                    });
+                    html += `<span class="badge badge-light ms-1">${data.length}</span></div>`;
+                    return html;
                 }
-                return '-';
+                return '<span class="text-muted">-</span>';
             }},
             { data: 'user', defaultContent: null, render: function(data) {
                 return data ? data.nama : '-';
@@ -389,9 +399,36 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     });
 
-    // Search functionality
-    $('[data-kt-ppd-table-filter="search"]').on('keyup', function () {
-        datatable.search(this.value).draw();
+    // Wire search input to reload DataTable via API
+    document.getElementById('search_nama').addEventListener('input', function() {
+        clearTimeout(this._searchTimer);
+        this._searchTimer = setTimeout(function() {
+            datatable.ajax.reload();
+        }, 400);
+    });
+
+    // Berkas file preview
+    document.getElementById('berkas').addEventListener('change', function() {
+        const preview = document.getElementById('berkas_preview');
+        preview.innerHTML = '';
+        const files = this.files;
+        if (files.length > 3) {
+            Swal.fire({ text: 'Maksimal 3 file.', icon: 'warning', confirmButtonText: 'OK', buttonsStyling: false, customClass: { confirmButton: 'btn btn-primary' } });
+            this.value = '';
+            return;
+        }
+        Array.from(files).forEach(function(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif'].includes(ext)) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML += `<div class="position-relative d-inline-block"><img src="${e.target.result}" class="rounded w-60px h-60px me-2" style="object-fit:cover; border:2px solid #e1e3ea;"></div>`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML += `<div class="d-inline-flex align-items-center gap-1 border rounded px-3 py-2 me-2 bg-light"><i class="ki-duotone ki-file fs-4"><span class="path1"></span><span class="path2"></span></i><span class="fs-7 text-truncate" style="max-width:100px">${file.name}</span></div>`;
+            }
+        });
     });
 
     // Handle Form Submit
@@ -420,9 +457,24 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('pinjaman', document.getElementById('pinjaman').value);
         formData.append('jatuhTempo', document.getElementById('jatuhTempo').value);
         
-        const ktpFile = document.getElementById('ktp').files[0];
-        if (ktpFile) {
-            formData.append('ktp', ktpFile);
+        // Validate berkas max 3
+        const berkasInput = document.getElementById('berkas');
+        if (berkasInput.files.length > 3) {
+            Swal.fire({
+                text: 'Maksimal 3 file yang diizinkan.',
+                icon: 'warning',
+                buttonsStyling: false,
+                confirmButtonText: 'Mengerti',
+                customClass: { confirmButton: 'btn btn-primary' }
+            });
+            submitButton.removeAttribute('data-kt-indicator');
+            submitButton.disabled = false;
+            return;
+        }
+        if (berkasInput.files.length > 0) {
+            for (let i = 0; i < berkasInput.files.length; i++) {
+                formData.append('berkas[]', berkasInput.files[i]);
+            }
         }
 
         fetch(url, {
@@ -472,6 +524,7 @@ window.resetForm = function() {
     document.getElementById('kt_modal_add_ppd_form').reset();
     document.getElementById('ppd_uuid').value = "";
     document.getElementById('modal_title').innerText = "Tambah PPD";
+    document.getElementById('berkas_preview').innerHTML = '';
 }
 
 window.editPPD = function(ppd) {
@@ -560,15 +613,23 @@ window.showDetailPPD = function(ppd) {
     
     document.getElementById('detail_pembuat').innerText = ppd.user ? ppd.user.nama : '-';
         
-    const ktpContainer = document.getElementById('detail_ktp');
-    if (ppd.ktp) {
-        ktpContainer.innerHTML = `
-            <a href="${baseUrl}/${ppd.ktp}" target="_blank" class="d-block border border-gray-300 rounded overflow-hidden">
-                <img src="${baseUrl}/${ppd.ktp}" alt="KTP" class="w-200px h-150px" style="object-fit:cover;" />
-            </a>
-        `;
+    const berkasContainer = document.getElementById('detail_ktp');
+    if (ppd.berkas && Array.isArray(ppd.berkas) && ppd.berkas.length > 0) {
+        berkasContainer.innerHTML = ppd.berkas.map(function(f) {
+            const ext = f.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif'].includes(ext)) {
+                return `<a href="${baseUrl}/${f}" target="_blank" class="d-block border border-gray-300 rounded overflow-hidden">
+                    <img src="${baseUrl}/${f}" alt="berkas" class="w-150px h-150px" style="object-fit:cover;" />
+                </a>`;
+            } else {
+                return `<a href="${baseUrl}/${f}" target="_blank" class="btn btn-light-primary d-flex align-items-center gap-2 px-4 py-3">
+                    <i class="ki-duotone ki-file fs-2"><span class="path1"></span><span class="path2"></span></i>
+                    <span>Buka Berkas</span>
+                </a>`;
+            }
+        }).join('');
     } else {
-        ktpContainer.innerHTML = '<span class="text-gray-500">Tidak ada KTP terlampir</span>';
+        berkasContainer.innerHTML = '<span class="text-gray-500">Tidak ada berkas terlampir</span>';
     }
 
     $('#kt_modal_detail_ppd').modal('show');
@@ -581,7 +642,8 @@ window.applyFilters = function() {
 window.resetFilters = function() {
     document.getElementById('filter_tanggal').value = '';
     document.getElementById('filter_nama').value = '';
-    $('#kt_table_ppds').DataTable().ajax.reload();
+    document.getElementById('search_nama').value = '';
+    datatable.ajax.reload();
 }
 
 window.exportData = function(module) {
