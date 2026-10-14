@@ -175,4 +175,47 @@ class NotificationController extends Controller
 
         return response()->json($result);
     }
+
+    #[OA\Post(
+        path: '/api/notifications/send-to-role',
+        summary: 'Send push notification to all users in specified roles',
+        security: [['bearerAuth' => []]],
+        tags: ['Notifications'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['roles', 'title', 'body'],
+                properties: [
+                    new OA\Property(property: 'roles', type: 'array', items: new OA\Items(type: 'string', example: 'leader')),
+                    new OA\Property(property: 'title', type: 'string', example: 'Pemberitahuan Khusus'),
+                    new OA\Property(property: 'body', type: 'string', example: 'Pesan untuk role tertentu.'),
+                    new OA\Property(property: 'data', type: 'object'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Notification results'),
+            new OA\Response(response: 422, description: 'Validation error'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
+    public function sendToRoles(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'string',
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'data' => 'nullable|array',
+        ]);
+
+        $result = $this->firebaseService->sendToRoles(
+            $validated['roles'],
+            $validated['title'],
+            $validated['body'],
+            $validated['data'] ?? []
+        );
+
+        return response()->json($result);
+    }
 }

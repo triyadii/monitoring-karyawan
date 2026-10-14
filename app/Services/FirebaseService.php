@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Penugasan;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -133,6 +135,94 @@ class FirebaseService
             ->toArray();
 
         return $this->sendToTokens($tokens, $title, $body, $data);
+    }
+
+    /**
+     * Send push notification to all users belonging to specific roles.
+     *
+     * @param  array<int, string>  $roles
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public function sendToRoles(array $roles, string $title, string $body, array $data = []): array
+    {
+        $normalizedRoles = array_map('strtolower', $roles);
+
+        $tokens = User::whereHas('role', function ($query) use ($normalizedRoles) {
+            $query->whereIn(DB::raw('LOWER(nama_role)'), $normalizedRoles);
+        })
+            ->whereNotNull('fcm_token')
+            ->where('fcm_token', '!=', '')
+            ->pluck('fcm_token')
+            ->toArray();
+
+        return $this->sendToTokens($tokens, $title, $body, $data);
+    }
+
+    /**
+     * Notify leader and superadmin roles when a user logs in.
+     *
+     * @return array<string, mixed>
+     */
+    public function notifyUserLogin(User $user): array
+    {
+        $user->loadMissing('role');
+        $roleName = $user->role?->nama_role;
+        $roleLabel = $roleName ? " [{$roleName}]" : '';
+
+        $title = 'Aktivitas Login Karyawan';
+        $body = "{$user->nama} ({$user->username}){$roleLabel} telah login ke dalam sistem.";
+
+        $data = [
+            'type' => 'user_login',
+            'user_id' => (string) $user->id,
+            'username' => (string) $user->username,
+            'nama' => (string) $user->nama,
+            'role' => (string) ($roleName ?? ''),
+            'login_at' => now()->toIso8601String(),
+        ];
+
+        return $this->sendToRoles(['leader', 'superadmin'], $title, $body, $data);
+    }
+
+    /**
+     * Notify assigned user about a new visit task and the target customer.
+     *
+     * @return array<string, mixed>
+     */
+    public function notifyPenugasanKunjungan(Penugasan $penugasan): array
+    {
+        $penugasan->loadMissing(['user', 'assignable', 'assigner']);
+
+        $assignedUser = $penugasan->user;
+        if (! $assignedUser) {
+            return [
+                'success' => false,
+                'message' => 'User yang ditugaskan tidak ditemukan.',
+            ];
+        }
+
+        $customerName = $penugasan->assignable?->namaClient ?? 'Customer';
+        $title = 'Tugas Kunjungan Baru';
+        $body = "Anda mendapatkan tugas kunjungan baru untuk customer: {$customerName}.";
+        if (! empty($penugasan->catatan)) {
+            $body .= " Catatan: {$penugasan->catatan}";
+        }
+
+        $data = [
+            'type' => 'tugas_kunjungan',
+            'penugasan_id' => (string) $penugasan->uuid,
+            'assignable_type' => (string) class_basename($penugasan->assignable_type),
+            'assignable_id' => (string) $penugasan->assignable_id,
+            'customer_name' => (string) $customerName,
+            'customer_phone' => (string) ($penugasan->assignable?->nomorTelepon ?? ''),
+            'customer_address' => (string) ($penugasan->assignable?->alamat ?? ''),
+            'catatan' => (string) ($penugasan->catatan ?? ''),
+            'assigned_by' => (string) ($penugasan->assigner?->nama ?? ''),
+            'assigned_at' => now()->toIso8601String(),
+        ];
+
+        return $this->sendToUser($assignedUser, $title, $body, $data);
     }
 
     /**

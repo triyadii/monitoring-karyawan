@@ -94,5 +94,6 @@ Route::middleware(['auth:api', EnsurePasswordIsNotExpired::class])->group(functi
     // Notifications
     Route::post('/notifications/send-to-token', [NotificationController::class, 'sendToToken']);
     Route::post('/notifications/send-to-user', [NotificationController::class, 'sendToUser']);
+    Route::post('/notifications/send-to-role', [NotificationController::class, 'sendToRoles']);
     Route::post('/notifications/send-to-all', [NotificationController::class, 'sendToAll']);
 });

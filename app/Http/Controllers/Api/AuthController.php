@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        protected FirebaseService $firebaseService
+    ) {}
+
     #[OA\Post(
         path: '/api/login',
         summary: 'Login user and get JWT token',
@@ -85,6 +91,13 @@ class AuthController extends Controller
         if (empty($user->fcm_token)) {
             $user->fcm_token = $request->fcm_token;
             $user->save();
+        }
+
+        // Send push notification to leader and superadmin roles
+        try {
+            $this->firebaseService->notifyUserLogin($user);
+        } catch (\Throwable $e) {
+            Log::error('Failed to notify leaders/superadmins on user login: '.$e->getMessage());
         }
 
         return $this->respondWithToken($token);

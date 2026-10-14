@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\ManajemenCanvasing;
 use App\Models\ManajemenHo;
 use App\Models\Penugasan;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
 
@@ -17,6 +19,10 @@ use OpenApi\Attributes as OA;
 )]
 class PenugasanController extends Controller
 {
+    public function __construct(
+        protected FirebaseService $firebaseService
+    ) {}
+
     #[OA\Get(
         path: '/api/penugasans',
         summary: 'Get all penugasans',
@@ -128,8 +134,17 @@ class PenugasanController extends Controller
             'catatan' => $validated['catatan'] ?? null,
         ]);
 
+        $penugasan->load(['assignable', 'user', 'assigner']);
+
+        // Send push notification to assigned user
+        try {
+            $this->firebaseService->notifyPenugasanKunjungan($penugasan);
+        } catch (\Throwable $e) {
+            Log::error('Failed to notify assigned user: '.$e->getMessage());
+        }
+
         return response()->json(
-            $penugasan->load(['assignable', 'user', 'assigner']),
+            $penugasan,
             201
         );
     }

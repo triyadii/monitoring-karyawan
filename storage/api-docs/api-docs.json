@@ -14,6 +14,10 @@
     },
     "servers": [
         {
+            "url": "https://mdt-solution.site/monitoring-karyawan",
+            "description": "Current API Server"
+        },
+        {
             "url": "http://monitoringkaryawan.local/",
             "description": "Local API Server"
         }
@@ -3234,6 +3238,66 @@
                 "responses": {
                     "200": {
                         "description": "Broadcast results"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/send-to-role": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Send push notification to all users in specified roles",
+                "operationId": "924118e4012daba442f54e1b4e823c43",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "roles",
+                                    "title",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "roles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "leader"
+                                        }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Pemberitahuan Khusus"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Pesan untuk role tertentu."
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notification results"
                     },
                     "422": {
                         "description": "Validation error"
