@@ -16,6 +16,7 @@ return [
     'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID', '330219223368'),
     'app_id' => env('FIREBASE_APP_ID', '1:330219223368:web:1a318d1fb0ae5ac1511b7d'),
     'measurement_id' => env('FIREBASE_MEASUREMENT_ID', 'G-0YDHT2GN43'),
+    'vapid_key' => env('FIREBASE_VAPID_KEY', null),
 
     /*
     |--------------------------------------------------------------------------

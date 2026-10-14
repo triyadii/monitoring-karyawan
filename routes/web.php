@@ -3,8 +3,6 @@
 use App\Models\Client;
 use App\Models\KegiatanAnggota;
 use App\Models\User;
-use App\Services\FirebaseService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -83,35 +81,3 @@ Route::get('/api-wilayah/{path}', function ($path) {
 
     return response($response->body(), $response->status())->header('Content-Type', 'application/json');
 })->where('path', '.*');
-
-Route::get('/firebase-messaging-sw.js', function () {
-    $path = public_path('firebase-messaging-sw.js');
-    if (! file_exists($path)) {
-        abort(404);
-    }
-
-    return response()->file($path, [
-        'Content-Type' => 'application/javascript',
-        'Service-Worker-Allowed' => '/',
-    ]);
-});
-
-Route::get('/fcm-test', function () {
-    return view('fcm_test');
-})->name('fcm-test');
-
-Route::post('/fcm-test/send', function (Request $request, FirebaseService $firebaseService) {
-    $request->validate([
-        'fcm_token' => 'required|string',
-        'title' => 'required|string',
-        'body' => 'required|string',
-    ]);
-
-    $result = $firebaseService->sendToToken(
-        $request->fcm_token,
-        $request->title,
-        $request->body
-    );
-
-    return response()->json($result, ($result['success'] ?? false) ? 200 : 400);
-});

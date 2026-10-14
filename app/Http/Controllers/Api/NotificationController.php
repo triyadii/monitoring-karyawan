@@ -81,7 +81,7 @@ class NotificationController extends Controller
             $validated['data'] ?? []
         );
 
-        return response()->json($result, ($result['success'] ?? false) ? 200 : 400);
+        return response()->json($result);
     }
 
     #[OA\Post(
@@ -134,7 +134,7 @@ class NotificationController extends Controller
             $validated['data'] ?? []
         );
 
-        return response()->json($result, ($result['success'] ?? false) ? 200 : 400);
+        return response()->json($result);
     }
 
     #[OA\Post(
